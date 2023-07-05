@@ -1,4 +1,4 @@
-package com.example.astar
+package com.practise.astar
 
 import org.junit.Test
 

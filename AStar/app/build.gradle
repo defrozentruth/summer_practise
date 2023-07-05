@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.astar'
+    namespace 'com.practise.astar'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.astar"
+        applicationId "com.practise.astar"
         minSdk 24
         targetSdk 33
         versionCode 1

@@ -1,4 +1,4 @@
-package com.example.astar.ui.theme
+package com.practise.astar.ui.theme
 
 import android.app.Activity
 import android.os.Build

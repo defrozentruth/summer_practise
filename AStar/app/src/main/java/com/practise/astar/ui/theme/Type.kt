@@ -1,4 +1,4 @@
-package com.example.astar.ui.theme
+package com.practise.astar.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
