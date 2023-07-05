@@ -31,8 +31,13 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
+    val field = Field(5, 5, 0, 0, 4, 4)
+    val alg = Alg(field)
+    val res = alg.AStar()
+    val answer = alg.retrievePath(res)
+
     Text(
-        text = "Hello $name!",
+        text = "Hello $name!, here's the solve $answer",
         modifier = modifier
     )
 }
