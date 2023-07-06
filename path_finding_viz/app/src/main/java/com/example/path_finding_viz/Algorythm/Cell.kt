@@ -1,5 +1,3 @@
-package com.practise.astar
-
 class Cell {
     var posX = 0
     var posY = 0
@@ -26,18 +24,5 @@ class Cell {
     fun setY(y:Int){
         posY = y
     }
-
-//    fun setUp(x:Int){
-//        up = x
-//    }
-//    fun setRight(x:Int){
-//        right = x
-//    }
-//    fun setDown(x:Int){
-//        down = x
-//    }
-//    fun setLeft(x: Int){
-//        left = x
-//    }
 
 }

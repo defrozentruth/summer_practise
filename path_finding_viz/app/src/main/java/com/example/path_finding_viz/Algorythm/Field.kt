@@ -1,5 +1,3 @@
-package com.practise.astar
-
 class Field (val sizeX: Int, val sizeY:Int, val startX:Int, val startY:Int, val finishX:Int, val finishY:Int){
     var cells =  Array(this.sizeY){Array<Cell>(this.sizeX){Cell()}}
     init{

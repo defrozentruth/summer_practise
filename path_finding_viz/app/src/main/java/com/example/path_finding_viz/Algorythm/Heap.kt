@@ -1,5 +1,3 @@
-package com.practise.astar
-
 class Heap(){
     var queue = emptyList<Cell>().toMutableList()
 

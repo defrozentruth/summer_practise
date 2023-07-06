@@ -1,4 +1,3 @@
-package com.practise.astar
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -28,12 +27,10 @@ class FieldReader() {
                     field.cells[i][j].accessibility = false
                 }
                 if(j == sizeX-1){
-                    println(j)
                     j = 0
                     i+=1
                     //ЗАЩИТА ОТ ПУСТЫХ СТРОК!!!!!!!!
                 }else{
-                    println(j)
                     j+=1
                 }
             }
