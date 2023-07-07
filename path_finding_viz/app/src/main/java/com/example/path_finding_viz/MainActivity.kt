@@ -111,10 +111,10 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
             PathFindingGrid(height.value, width.value, cells.toLinearGrid(), onClick) // рисует поле
         }
         Log.d("mypain", "alive")
-        /*
+
         item {
-            Text(text = "aboba", color = Color.Black)
-        }*/
+            Text(text = "Здесь будет промежуточный вывод", color = Color.Black)
+        }
         item{
             Row(modifier = Modifier.padding(8.dp)) {
 
