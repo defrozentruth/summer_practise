@@ -2,7 +2,7 @@ package com.example.path_finding_viz
 
 import android.util.Log
 
-class State (var height: Int, var width: Int, var startPosition: Position, var finishPosition: Position) {
+class State (var height: Int, var width: Int, var startPosition: ExtraPosition, var finishPosition: ExtraPosition) {
     private var gridState: MutableList<MutableList<CellData>> = mutableListOf()
 
     var isVisualizing = false
@@ -38,10 +38,10 @@ class State (var height: Int, var width: Int, var startPosition: Position, var f
 
     private fun addStartAndFinishGrids() {
 
-        gridState[startPosition.row][startPosition.column] =
-            CellData(CellType.START, startPosition, distance = 0)
-        gridState[finishPosition.row][finishPosition.column] =
-            CellData(CellType.FINISH, finishPosition)
+        gridState[startPosition.row.value][startPosition.column.value] =
+            CellData(CellType.START, Position(startPosition.row.value, startPosition.column.value), distance = 0)
+        gridState[finishPosition.row.value][finishPosition.column.value] =
+            CellData(CellType.FINISH, Position(finishPosition.row.value, finishPosition.column.value))
     }
     fun getCellAtPosition(p: Position) = gridState[p.row][p.column]
 

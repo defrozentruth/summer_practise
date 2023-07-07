@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetField(height: Int, width: Int, onSubmit: (Int, Int) -> Unit,startPosition: Position, finishPosition: Position, startSumbit: (Position) -> Unit, finSumbit:(Position) -> Unit  ){  // состояние, которое будет хранить значения, введенные пользователем в диалоговом окне
+fun SetField(height: Int, width: Int, onSubmit: (Int, Int) -> Unit, startPositionX: Int,startPositionY: Int, finishPositionX: Int, finishPositionY: Int, startSubmitX:(Int) -> Unit, startSubmitY:(Int) -> Unit, finSubmitX:(Int) -> Unit,  finSubmitY:(Int) -> Unit){  // состояние, которое будет хранить значения, введенные пользователем в диалоговом окне
 
 
     val showDialog = remember { mutableStateOf(false) } // состояние, которое будет хранить флаг, показывающий, нужно ли отображать диалоговое окно
@@ -54,23 +54,23 @@ fun SetField(height: Int, width: Int, onSubmit: (Int, Int) -> Unit,startPosition
                         label = { Text("Ширина") }
                     )
                     OutlinedTextField(
-                        value = startPosition.column.toString(),
-                        onValueChange = { startSumbit(Position(it.toIntOrNull() ?: 0, startPosition.row)) },
+                        value = startPositionX.toString(),
+                        onValueChange = { startSubmitX(it.toIntOrNull()?:0) },
                         label = { Text("Старт X") }
                     )
                     OutlinedTextField(
-                        value = startPosition.row.toString(),
-                        onValueChange = { startSumbit(Position(startPosition.column, it.toIntOrNull() ?: 0)) },
+                        value = startPositionY.toString(),
+                        onValueChange = { startSubmitY(it.toIntOrNull()?:0) },
                         label = { Text("Старт Y") }
                     )
                     OutlinedTextField(
-                        value = finishPosition.column.toString(),
-                        onValueChange = { finSumbit(Position(it.toIntOrNull() ?: 0, finishPosition.row)) },
+                        value = finishPositionX.toString(),
+                        onValueChange = { finSubmitX(it.toIntOrNull()?:0) },
                         label = { Text("Финиш X") }
                     )
                     OutlinedTextField(
-                        value = finishPosition.row.toString(),
-                        onValueChange = { finSumbit(Position(finishPosition.column, it.toIntOrNull() ?: 0)) },
+                        value = finishPositionY.toString(),
+                        onValueChange = { finSubmitY(it.toIntOrNull()?:0) },
                         label = { Text("Финиш Y") }
                     )
                 }

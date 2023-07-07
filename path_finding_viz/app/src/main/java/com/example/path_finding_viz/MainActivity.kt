@@ -46,10 +46,18 @@ class MainActivity : ComponentActivity() {
 fun PathFindingApp(){
     val height = remember { mutableStateOf(10) }
     val width = remember { mutableStateOf(15) }
-    val startPos = remember {mutableStateOf(Position(0,0))}
-    val finPos = remember{mutableStateOf( Position(0, 0))}
+    val startPos = ExtraPosition(remember {
+        mutableStateOf(0)
+    }, remember {
+        mutableStateOf(0)
+    })
+    val finPos = ExtraPosition(remember {
+        mutableStateOf(0)
+    }, remember {
+        mutableStateOf(0)
+    })
 
-            val state = remember(height.value, width.value, startPos, finPos) { State(height.value, width.value, startPos.value, finPos.value) }
+            val state = remember(height.value, width.value, startPos, finPos) { State(height.value, width.value, startPos, finPos) }
             val currentGridState = remember(state) { mutableStateOf(state.drawCurrentGridState()) }
 
             val onCellClicked = { p: Position -> // пока не используется, перерисовка клеток при изменении перехоов в них не предусмотрена
@@ -71,7 +79,7 @@ fun PathFindingApp(){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : MutableState<Position>, finPos:MutableState<Position>) {
+fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
         // state.animatedShortestPath()
@@ -138,13 +146,21 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                     onSubmit = { n1 :Int, n2:Int ->
                         height.value = n1
                         width.value = n2
-                    }, startPos.value, finPos.value,
-                    {
-                        start: Position ->
-                        startPos.value = start
-                    }, {
-                        finish: Position ->
-                        finPos.value = finish
+                    }, startPos.column.value,startPos.row.value, finPos.column.value,finPos.row.value,
+
+                    { startPosX :Int->
+                        startPos.column.value = startPosX
+                    },
+
+                    { startPosY :Int->
+                        startPos.row.value = startPosY
+                    },
+
+                    { finishPosX :Int->
+                        finPos.column.value = finishPosX
+                    },
+                    { finishPosY :Int->
+                        finPos.row.value = finishPosY
                     }
                 )
 
