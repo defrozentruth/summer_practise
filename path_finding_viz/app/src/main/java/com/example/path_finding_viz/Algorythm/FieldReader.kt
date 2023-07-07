@@ -6,14 +6,14 @@ import java.io.IOException
 class FieldReader() {
     fun readField(filename: String):Field{
         val file = File(filename)
-        var lines = file.readLines()
+        val lines = file.readLines()
         val sizeX = lines[0].split(" ")[0].toInt()
         val sizeY = lines[0].split(" ")[1].toInt()
         val startX = lines[1].split(" ")[0].toInt()
         val startY = lines[1].split(" ")[1].toInt()
         val finishX = lines[2].split(" ")[0].toInt()
         val finishY = lines[2].split(" ")[1].toInt()
-        var field = Field(sizeX, sizeY, startX, startY, finishX, finishY)
+        val field = Field(sizeX, sizeY, startX, startY, finishX, finishY)
         var i = 0
         var j = 0
         for(k in 3 until lines.size){
