@@ -8,11 +8,15 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -70,6 +74,7 @@ fun Cell(cellData: CellData, onClick: (Position) -> Unit) {
     val rightJump = remember { mutableStateOf(cellData.rightJump) }
     val downJump = remember { mutableStateOf(cellData.downJump) }
     val uppJump = remember { mutableStateOf(cellData.uppJump) }
+    val passability = remember { mutableStateOf(cellData.type) }
     val boxModifier = Modifier
 
         .padding(0.dp)
@@ -84,11 +89,20 @@ fun Cell(cellData: CellData, onClick: (Position) -> Unit) {
             onDismissRequest = { showDialog.value = false },
             title = { Text("Введите параметры") },
             text = {
-                Column {
+                Column (
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ){
                     TextField(value = leftJump.value.toString(), onValueChange = { leftJump.value = it.toIntOrNull() ?: 0 }, label = { Text("Шаг влево") })
                     TextField(value = rightJump.value.toString(), onValueChange = { rightJump.value = it.toIntOrNull() ?: 0 }, label = { Text("Шаг вправо") })
                     TextField(value = downJump.value.toString(), onValueChange = { downJump.value = it.toIntOrNull() ?: 0}, label = { Text("Шаг вниз") })
                     TextField(value = uppJump.value.toString(), onValueChange = { uppJump.value = it.toIntOrNull() ?: 0 }, label = { Text("Шаг вверх") })
+                    Row {
+                        Text("Проходимость: ")
+                        Checkbox(checked = (passability.value == CellType.WALL), onCheckedChange = {
+                            passability.value = if (it) CellType.WALL else CellType.BACKGROUND
+                            cellData.type = passability.value
+                        })
+                    }
                 }
             },
             confirmButton = {
