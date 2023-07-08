@@ -34,7 +34,7 @@ fun PathFindingGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(fix_wid),
         modifier = Modifier
-            .height((17 * (height)).dp)
+            .height((16 * (height) + 2+5).dp)
             .padding(2.dp)
             .border(BorderStroke(5.dp, Color.Black))
     ) {
