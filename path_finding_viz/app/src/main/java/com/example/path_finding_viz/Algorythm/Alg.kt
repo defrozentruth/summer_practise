@@ -9,6 +9,7 @@ class Alg(var field: Field) {
     val res: MutableMap<Cell, Cell?> = mutableMapOf(field.cells[nextY][nextX] to null)
     var finSingle:Boolean = false
     var log: String = ""
+    var shortLog: String = ""
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishX)+ abs(y-field.finishY)
@@ -19,8 +20,6 @@ class Alg(var field: Field) {
         var y = nextY
         val finishX = field.finishX
         val finishY = field.finishY
-        val res: MutableMap<Cell, Cell?> = mutableMapOf(field.cells[y][x] to null)
-
         queue.put(field.cells[y][x])
         while(!finSingle){
             val cur = queue.extractMin()
@@ -54,8 +53,10 @@ class Alg(var field: Field) {
             x = cur.posX
             y = cur.posY
             log += "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
+            shortLog = "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
             if (x == finishX && y == finishY) {
                 log += "Дошли до конечной клетки\n"
+                shortLog += "Дошли до конечной клетки\n"
                 finSingle = true
                 return res
             }
@@ -72,14 +73,17 @@ class Alg(var field: Field) {
     private fun addNextCell(x: Int, y: Int, queue:Heap, res: MutableMap<Cell, Cell?>, previousCell:Cell, roadToNew:Int){
         if( x < 0 || x >= field.sizeX || y < 0 || y >= field.sizeY) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
+            shortLog += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
             return
         }
         if(!field.cells[y][x].accessibility) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к.она непроходима\n"
+            shortLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она непроходима\n"
             return
         }
         if(field.cells[y][x].visited) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
+            shortLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
             return
         }
         val newCell = field.cells[y][x]
@@ -89,6 +93,7 @@ class Alg(var field: Field) {
             newCell.distance = newDistance
             newCell.priority = heuristic(x, y)
             log += "Добавляем в очередь клетку (${newCell.posX}, ${newCell.posY}) с приоритетом ${newCell.priority}\n"
+            shortLog += "Добавляем в очередь клетку (${newCell.posX}, ${newCell.posY}) с приоритетом ${newCell.priority}\n"
             queue.put(newCell)
         }
         val cur = queue.extractMin()
