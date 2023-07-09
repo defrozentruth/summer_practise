@@ -1,5 +1,6 @@
 package com.example.path_finding_viz
 
+import Alg
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -22,9 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.path_finding_viz.ui.theme.Path_finding_vizTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-
+private val scope = CoroutineScope(Dispatchers.Default)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,19 +58,21 @@ fun PathFindingApp(){
     val finPos = ExtraPosition(remember {
         mutableStateOf(0)
     }, remember {
-        mutableStateOf(0)
+        mutableStateOf(3)
     })
 
             val state = remember(height.value, width.value, startPos, finPos) { State(height.value, width.value, startPos, finPos) }
             val currentGridState = remember(state) { mutableStateOf(state.drawCurrentGridState()) }
-
+            val alg = remember {
+                mutableStateOf(Alg(state))
+            }
             val onCellClicked = { p: Position -> // пока не используется, перерисовка клеток при изменении перехоов в них не предусмотрена
                 if (state.isPositionNotAtStartOrFinish(p) && !state.isVisualizing) {
                     currentGridState.value = state.drawCurrentGridState()
                 }
             }
 
-            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos)
+            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value)
 
     LaunchedEffect(Unit) {
                 while (true) {
@@ -79,15 +85,15 @@ fun PathFindingApp(){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition) {
+fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
-        // state.animatedShortestPath()
+        scope.launch { state.animatedShortestPath() }
         isVisualizeEnabled.value = false
     }
     val onStepPathfind: () -> Unit = {
-        // state.animatedShortestPath()
-        isVisualizeEnabled.value = false
+        scope.launch { state.animatedShortestPath_single(alg) }
+        isVisualizeEnabled.value = true
     }
     val onCleared: () -> Unit = {
         state.clear()
@@ -113,7 +119,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
         Log.d("mypain", "alive")
 
         item {
-            Text(text = "Здесь будет промежуточный вывод", color = Color.Black)
+            Text(text = state.log, color = Color.Black)
         }
         item{
             Row(modifier = Modifier.padding(8.dp)) {

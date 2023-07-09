@@ -1,10 +1,13 @@
 package com.example.path_finding_viz
 
+import Alg
 import android.util.Log
+import startA_star
+import startA_star_single
 
 class State (var height: Int, var width: Int, var startPosition: ExtraPosition, var finishPosition: ExtraPosition) {
     private var gridState: MutableList<MutableList<CellData>> = mutableListOf()
-
+    var log = ""
     var isVisualizing = false
         private set
 
@@ -20,6 +23,7 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
     fun clear() {
         gridState = getInitGridState()
         isVisualizing = false
+        log = ""
         addStartAndFinishGrids()
     }
 
@@ -44,6 +48,15 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
             CellData(CellType.FINISH, Position(finishPosition.row.value, finishPosition.column.value))
     }
     fun getCellAtPosition(p: Position) = gridState[p.row][p.column]
+    fun getCellAtPosition(p: ExtraPosition) = gridState[p.row.value][p.column.value]
+    fun getCells() = gridState
+    fun getCurrentGrid(): List<List<CellData>> = gridState
+    fun setCellVisitedAtPosition(p: Position) {
+        gridState[p.row][p.column] = getCellAtPosition(p).copy(isVisited = true)
+    }
+    fun setCellShortestAtPosition(p: Position) {
+        gridState[p.row][p.column] = getCellAtPosition(p).copy(isShortestPath = true)
+    }
 
     fun isPositionNotAtStartOrFinish(p: Position) =
         getCellAtPosition(p).type != CellType.START &&
@@ -56,6 +69,24 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
             updateCellTypeAtPosition(p, CellType.WALL)
         }
     }
+    fun getFinishCell() = getCellAtPosition(finishPosition)
+    suspend fun animatedShortestPath() {
+        isVisualizing = true
+        val value = startA_star(this)
+        log = value.second
+//        shortestPath.forEach {
+//            val p = it.position
+//        gridState[p.row][p.column] = getCellAtPosition(p).copy(isShortestPath = true)
+//            //delay(10.toLong())
+//        }
+    }
+    suspend fun animatedShortestPath_single(alg : Alg) {
+        isVisualizing = true
+        val value = startA_star_single(this, alg)
+        log = value.second
+    }
+    @JvmName("getFinishPositionMethod")
+    fun getFinishPosition() = finishPosition
 
     private fun updateCellTypeAtPosition(p: Position, cellType: CellType) {
         gridState[p.row][p.column] = getCellAtPosition(p).copy(type = cellType)

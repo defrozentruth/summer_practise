@@ -1,5 +1,6 @@
 package com.example.path_finding_viz
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -33,17 +34,19 @@ import androidx.compose.ui.unit.dp
 data class CellData(
     var type: CellType,
     val position: Position,
-    val isVisited: Boolean = false,
-    val isShortestPath: Boolean = false,
+    var isVisited: Boolean = false,
+    var isShortestPath: Boolean = false,
     var distance: Int = Int.MAX_VALUE,
     var previousShortestCell: CellData? = null,
     var id: Int = (0..Int.MAX_VALUE).random(),
-    var leftJump: Int = Int.MAX_VALUE,
-    var rightJump: Int = Int.MAX_VALUE,
-    var downJump: Int = Int.MAX_VALUE,
-    var uppJump: Int = Int.MAX_VALUE
+    var leftJump: Int = 1,
+    var rightJump: Int = 1,
+    var downJump: Int = 1,
+    var uppJump: Int = 1,
+    var priority: Int = 0
+){
 
-)
+}
 
 enum class CellType {
     START,
@@ -122,16 +125,24 @@ fun Cell(cellData: CellData, onClick: (Position) -> Unit) {
     Box(modifier = boxModifier)
 }
 
+val Purple200 = Color(0xFFBB86FC)
 val CELL_BACKGROUND = Color.White
 val CELL_START = Color.Red
 val CELL_FINISH = Color.Green
-val CELL_VISITED = Color.Gray
+val CELL_VISITED = Purple200
 val CELL_PATH = Color.Yellow
 val CELL_WALL = Color.Black
 
 private fun getBackgroundByType(cellData: CellData): Color {
-    if (cellData.isShortestPath && cellData.type != CellType.START && cellData.type != CellType.FINISH) return CELL_PATH
-    if (cellData.isVisited && cellData.type != CellType.START && cellData.type != CellType.FINISH) return CELL_VISITED
+    if (cellData.isShortestPath && cellData.type != CellType.START && cellData.type != CellType.FINISH)
+    {
+        Log.d("shortColor", "here")
+        return CELL_PATH
+    }
+    if (cellData.isVisited && cellData.type != CellType.START && cellData.type != CellType.FINISH) {
+        Log.d("visittColor", "here")
+        return CELL_VISITED
+    }
 
     return when (cellData.type) {
         CellType.BACKGROUND -> CELL_BACKGROUND
