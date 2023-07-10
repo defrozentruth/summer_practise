@@ -17,6 +17,7 @@ class Alg(var field: State) {
     var finSingle:Boolean = false
     var log: String = ""
     var smallLog: String = ""
+    var way: Int = 0
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
@@ -33,6 +34,8 @@ class Alg(var field: State) {
         queue.put(field.getCells()[y][x])
         while(queue.size() != 0){
             val cur = queue.extractMin()
+            if (cur.distance != -1)
+                way = cur.distance
             //println("${cur.position.column} ${cur.position.row}")
             //field.setCellShortestAtPosition(cur.position)
             Log.d("tired", "${cur.position.row} ------- ${cur.position.column}")
@@ -60,6 +63,7 @@ class Alg(var field: State) {
         if(!finSingle){
             log += "Пути от старта до финиша не существует\n"
         }
+        //retrievePathWhole(res)
         return Pair (res,log)
     }
 
@@ -72,6 +76,7 @@ class Alg(var field: State) {
             field.setCellVisitedAtPosition(field.getCells()[y][x].position)
             queue.put(field.getCells()[y][x])
             val cur = queue.extractMin()
+            way = cur.distance
             //field.setCellShortestAtPosition(cur.position)
             x = cur.position.column
             y = cur.position.row
@@ -98,6 +103,7 @@ class Alg(var field: State) {
             log += "Пути от старта до финиша не существует\n"
             smallLog += "Пути от старта до финиша не существует\n"
         }
+        //retrievePathSingle(res)
         return Pair(res, smallLog)
     }
 
@@ -142,8 +148,13 @@ class Alg(var field: State) {
         while(curr != null){
             path.add(curr)
             curr = res[curr]
+
         }
         path.reverse()
+        log += "Итоговый путь:\n"
+        for (elem in path)
+            log += "x:${elem.position.column} y:${elem.position.row}\n"
+        log += "Цена итогового пути: ${way}\n"
         return path
     }
     fun retrievePathSingle(res:MutableMap<CellData, CellData?>): MutableList<CellData>{
@@ -154,6 +165,12 @@ class Alg(var field: State) {
             curr = res[curr]
         }
         path.reverse()
+        if(finSingle){
+            log += "Итоговый путь:\n"
+            for (elem in path)
+                log += "x:${elem.position.column} y:${elem.position.row}\n"
+            log += "Цена итогового пути: ${way}\n"
+        }
         return path
     }
 }
