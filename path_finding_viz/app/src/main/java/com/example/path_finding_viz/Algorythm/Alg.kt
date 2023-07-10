@@ -31,7 +31,7 @@ class Alg(var field: State) {
         val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[y][x] to null)
         field.setCellVisitedAtPosition(field.getCells()[y][x].position)
         queue.put(field.getCells()[y][x])
-        while(!finSingle){
+        while(queue.size() != 0){
             val cur = queue.extractMin()
             //println("${cur.position.column} ${cur.position.row}")
             //field.setCellShortestAtPosition(cur.position)
@@ -56,6 +56,9 @@ class Alg(var field: State) {
             field.setCellShortestAtPosition(it.position)
             Log.d("pochemu", "${shortestPath.size}")
             Log.d("pochemu", "${it.position.row} ------- ${it.position.column}")
+        }
+        if(!finSingle){
+            log += "Пути от старта до финиша не существует\n"
         }
         return Pair (res,log)
     }
@@ -90,6 +93,10 @@ class Alg(var field: State) {
         val shortestPath = retrievePathWhole(res)
         shortestPath.forEach{
             field.setCellShortestAtPosition(it.position)
+        }
+        if(!finSingle && queue.size() == 0){
+            log += "Пути от старта до финиша не существует\n"
+            smallLog += "Пути от старта до финиша не существует\n"
         }
         return Pair(res, smallLog)
     }
