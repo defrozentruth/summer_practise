@@ -1,5 +1,7 @@
+import android.util.Log
 import com.example.path_finding_viz.CellData
 import com.example.path_finding_viz.CellType
+import com.example.path_finding_viz.Position
 import com.example.path_finding_viz.State
 import kotlinx.coroutines.delay
 import kotlin.math.abs
@@ -9,9 +11,9 @@ class Alg(var field: State) {
     var nextY = field.startPosition.row.value
     var endedOnX = field.finishPosition.column.value
     var endedOnY = field.finishPosition.row.value
-    val cells = field.getCells()
+    //val cells = field.getCells()
     val queue = Heap()
-    val res: MutableMap<CellData, CellData?> = mutableMapOf(cells[nextY][nextX] to null)
+    val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
     var finSingle:Boolean = false
     var log: String = ""
 
@@ -20,17 +22,19 @@ class Alg(var field: State) {
     }
 
     suspend fun AStarWhole():Pair<MutableMap<CellData, CellData?>, String>{
+        Log.d("ves", field.getCells()[0][0].rightJump.toString())
         var x = nextX
         var y = nextY
         val finishX = field.finishPosition.column.value
         val finishY = field.finishPosition.row.value
-        val res: MutableMap<CellData, CellData?> = mutableMapOf(cells[y][x] to null)
-
-        queue.put(cells[y][x])
+        val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[y][x] to null)
+        field.setCellVisitedAtPosition(field.getCells()[y][x].position)
+        queue.put(field.getCells()[y][x])
         while(!finSingle){
             val cur = queue.extractMin()
             println("${cur.position.column} ${cur.position.row}")
-            field.setCellShortestAtPosition(cur.position)
+            //field.setCellShortestAtPosition(cur.position)
+            Log.d("tired", "${cur.position.row} ------- ${cur.position.column}")
             delay(10.toLong())
             x = cur.position.column
             y = cur.position.row
@@ -40,10 +44,17 @@ class Alg(var field: State) {
                 finSingle = true
                 break
             }
-            addNextCell(x+1, y, queue, res, cells[y][x], cells[y][x].rightJump)
-            addNextCell(x-1, y, queue, res, cells[y][x], cells[y][x].leftJump)
-            addNextCell(x, y+1, queue, res, cells[y][x], cells[y][x].downJump)
-            addNextCell(x, y-1, queue, res, cells[y][x], cells[y][x].uppJump)
+            addNextCell(x+1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
+            addNextCell(x-1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
+            addNextCell(x, y+1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)
+            addNextCell(x, y-1, queue, res, field.getCells()[y][x], field.getCells()[y][x].uppJump)
+        }
+        val shortestPath = retrievePathWhole(res)
+        Log.d("chego", "${res.size}")
+        shortestPath.forEach{
+            field.setCellShortestAtPosition(it.position)
+            Log.d("pochemu", "${shortestPath.size}")
+            Log.d("pochemu", "${it.position.row} ------- ${it.position.column}")
         }
         return Pair (res,log)
     }
@@ -54,9 +65,10 @@ class Alg(var field: State) {
             var y = nextY
             val finishX = field.finishPosition.column.value
             val finishY = field.finishPosition.row.value
-            queue.put(cells[y][x])
+            field.setCellVisitedAtPosition(field.getCells()[y][x].position)
+            queue.put(field.getCells()[y][x])
             val cur = queue.extractMin()
-            field.setCellShortestAtPosition(cur.position)
+            //field.setCellShortestAtPosition(cur.position)
             x = cur.position.column
             y = cur.position.row
             log += "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
@@ -65,12 +77,16 @@ class Alg(var field: State) {
                 finSingle = true
                 return Pair (res,log)
             }
-            addNextCell(x + 1, y, queue, res, cells[y][x], cells[y][x].rightJump)
-            addNextCell(x - 1, y, queue, res, cells[y][x], cells[y][x].leftJump)
-            addNextCell(x, y + 1, queue, res, cells[y][x], cells[y][x].downJump)
-            addNextCell(x, y - 1, queue, res, cells[y][x], cells[y][x].uppJump)
+            addNextCell(x + 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
+            addNextCell(x - 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
+            addNextCell(x, y + 1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)
+            addNextCell(x, y - 1, queue, res, field.getCells()[y][x], field.getCells()[y][x].uppJump)
             endedOnX = x
             endedOnY = y
+        }
+        val shortestPath = retrievePathWhole(res)
+        shortestPath.forEach{
+            field.setCellShortestAtPosition(it.position)
         }
         return Pair(res, log)
     }
@@ -88,7 +104,9 @@ class Alg(var field: State) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
             return
         }
+        field.setCellVisitedAtPosition(Position(y,x))
         val newCell = field.getCells()[y][x]
+
         val newDistance = previousCell.distance+roadToNew
         if(newCell.distance == -1 || newCell.distance > newDistance){
             res[newCell] = previousCell
@@ -102,12 +120,11 @@ class Alg(var field: State) {
         nextX = cur.position.column
         nextY = cur.position.row
         queue.put(cur)
-        field.setCellVisitedAtPosition(cur.position)
     }
 
     fun retrievePathWhole(res:MutableMap<CellData, CellData?>): MutableList<CellData>{
         val path = emptyList<CellData>().toMutableList()
-        var curr: CellData? = cells[field.finishPosition.row.value][field.finishPosition.column.value]
+        var curr: CellData? = field.getCells()[field.finishPosition.row.value][field.finishPosition.column.value]
         while(curr != null){
             path.add(curr)
             curr = res[curr]
@@ -117,7 +134,7 @@ class Alg(var field: State) {
     }
     fun retrievePathSingle(res:MutableMap<CellData, CellData?>): MutableList<CellData>{
         val path = emptyList<CellData>().toMutableList()
-        var curr: CellData? = cells[endedOnY][endedOnX]
+        var curr: CellData? = field.getCells()[endedOnY][endedOnX]
         while(curr != null){
             path.add(curr)
             curr = res[curr]

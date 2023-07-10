@@ -22,9 +22,12 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
 
     fun clear() {
         gridState = getInitGridState()
+        Log.d("beda", "refresh_grid")
         isVisualizing = false
         log = ""
         addStartAndFinishGrids()
+        Log.d("bedaExtra", "${this.startPosition.column.value} ------- ${this.startPosition.row.value}")
+
     }
 
     fun drawCurrentGridState(): List<List<CellData>> {
@@ -41,11 +44,13 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
     private fun getInitGridState() = getGridWithClearBackground(height, width)
 
     private fun addStartAndFinishGrids() {
-
+Log.d("beda", "start ${this.startPosition.column.value} ------- ${this.startPosition.row.value}")
         gridState[startPosition.row.value][startPosition.column.value] =
             CellData(CellType.START, Position(startPosition.row.value, startPosition.column.value), distance = 0)
         gridState[finishPosition.row.value][finishPosition.column.value] =
             CellData(CellType.FINISH, Position(finishPosition.row.value, finishPosition.column.value))
+        Log.d("beda", "finish ${this.finishPosition.column.value} ------- ${this.finishPosition.row.value}")
+
     }
     fun getCellAtPosition(p: Position) = gridState[p.row][p.column]
     fun getCellAtPosition(p: ExtraPosition) = gridState[p.row.value][p.column.value]
@@ -73,10 +78,12 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
     suspend fun animatedShortestPath() {
         isVisualizing = true
         val value = startA_star(this)
+        val shortestPath = value.first
         log = value.second
 //        shortestPath.forEach {
 //            val p = it.position
-//        gridState[p.row][p.column] = getCellAtPosition(p).copy(isShortestPath = true)
+//            Log.d("detonator", shortestPath.size.toString())
+//         this.setCellShortestAtPosition(p)
 //            //delay(10.toLong())
 //        }
     }

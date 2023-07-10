@@ -36,7 +36,7 @@ data class CellData(
     val position: Position,
     var isVisited: Boolean = false,
     var isShortestPath: Boolean = false,
-    var distance: Int = Int.MAX_VALUE,
+    var distance: Int = -1,
     var previousShortestCell: CellData? = null,
     var id: Int = (0..Int.MAX_VALUE).random(),
     var leftJump: Int = 1,
@@ -45,7 +45,31 @@ data class CellData(
     var uppJump: Int = 1,
     var priority: Int = 0
 ){
+    override fun hashCode(): Int {
+        return id
+    }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CellData
+
+        if (type != other.type) return false
+        if (position != other.position) return false
+        if (isVisited != other.isVisited) return false
+        if (isShortestPath != other.isShortestPath) return false
+        if (distance != other.distance) return false
+        if (previousShortestCell != other.previousShortestCell) return false
+        if (id != other.id) return false
+        if (leftJump != other.leftJump) return false
+        if (rightJump != other.rightJump) return false
+        if (downJump != other.downJump) return false
+        if (uppJump != other.uppJump) return false
+        if (priority != other.priority) return false
+
+        return true
+    }
 }
 
 enum class CellType {

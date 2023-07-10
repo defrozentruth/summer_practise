@@ -56,9 +56,9 @@ fun PathFindingApp(){
         mutableStateOf(0)
     })
     val finPos = ExtraPosition(remember {
-        mutableStateOf(0)
+        mutableStateOf(1)
     }, remember {
-        mutableStateOf(3)
+        mutableStateOf(1)
     })
 
             val state = remember(height.value, width.value, startPos, finPos) { State(height.value, width.value, startPos, finPos) }
@@ -72,7 +72,7 @@ fun PathFindingApp(){
                 }
             }
 
-            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value)
+            PathFindingUi(state, currentGridState, onCellClicked, height, width, startPos, finPos, alg.value)
 
     LaunchedEffect(Unit) {
                 while (true) {
@@ -85,7 +85,7 @@ fun PathFindingApp(){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg) {
+fun PathFindingUi(state: State, cells: MutableState<List<List<CellData>>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
         scope.launch { state.animatedShortestPath() }
@@ -96,7 +96,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
         isVisualizeEnabled.value = true
     }
     val onCleared: () -> Unit = {
-        state.clear()
+        scope.launch { state.clear()}
         isVisualizeEnabled.value = true
     }
     val onOpenFile: () -> Unit = {
@@ -114,7 +114,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
         item {
-            PathFindingGrid(height.value, width.value, cells.toLinearGrid(), onClick) // рисует поле
+            PathFindingGrid(height.value, width.value, cells.value.toLinearGrid(), onClick) // рисует поле
         }
         Log.d("mypain", "alive")
 
@@ -155,18 +155,35 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                     }, startPos.column.value,startPos.row.value, finPos.column.value,finPos.row.value,
 
                     { startPosX :Int->
+                        cells.value[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
                         startPos.column.value = startPosX
+                        onCleared()
+                        cells.value[startPos.row.value][startPos.column.value].type = CellType.START
+                        //cells.value = state.drawCurrentGridState()
+
                     },
 
                     { startPosY :Int->
+                        cells.value[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
                         startPos.row.value = startPosY
+                        onCleared()
+                        cells.value[startPos.row.value][startPos.column.value].type = CellType.START
+                        //cells.value = state.drawCurrentGridState()
                     },
 
                     { finishPosX :Int->
+                        cells.value[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
                         finPos.column.value = finishPosX
+                        onCleared()
+                        cells.value[finPos.row.value][finPos.column.value].type = CellType.FINISH
+                        //cells.value = state.drawCurrentGridState()
                     },
                     { finishPosY :Int->
+                        cells.value[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
                         finPos.row.value = finishPosY
+                        onCleared()
+                        cells.value[finPos.row.value][finPos.column.value].type = CellType.FINISH
+                        //cells.value = state.drawCurrentGridState()
                     }
                 )
 
