@@ -16,6 +16,7 @@ class Alg(var field: State) {
     val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
     var finSingle:Boolean = false
     var log: String = ""
+    var smallLog: String = ""
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
@@ -72,8 +73,10 @@ class Alg(var field: State) {
             x = cur.position.column
             y = cur.position.row
             log += "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
+            smallLog = "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
             if (x == finishX && y == finishY) {
                 log += "Дошли до конечной клетки\n"
+                smallLog += "Дошли до конечной клетки\n"
                 finSingle = true
                 return Pair (res,log)
             }
@@ -88,20 +91,23 @@ class Alg(var field: State) {
         shortestPath.forEach{
             field.setCellShortestAtPosition(it.position)
         }
-        return Pair(res, log)
+        return Pair(res, smallLog)
     }
 
     private suspend fun addNextCell(x: Int, y: Int, queue:Heap, res: MutableMap<CellData, CellData?>, previousCell:CellData, roadToNew:Int){
         if( x < 0 || x >= field.width || y < 0 || y >= field.height) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
+            smallLog += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
             return
         }
         if(field.getCells()[y][x].type == CellType.WALL) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к.она непроходима\n"
+            smallLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она непроходима\n"
             return
         }
         if(field.getCells()[y][x].isVisited) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
+            smallLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
             return
         }
         field.setCellVisitedAtPosition(Position(y,x))
@@ -111,8 +117,9 @@ class Alg(var field: State) {
         if(newCell.distance == -1 || newCell.distance > newDistance){
             res[newCell] = previousCell
             newCell.distance = newDistance
-            newCell.priority = heuristic(x, y)
+            newCell.priority = heuristic(x, y) + newCell.distance
             log += "Добавляем в очередь клетку (${newCell.position.column}, ${newCell.position.row}) с приоритетом ${newCell.priority}\n"
+            smallLog += "Добавляем в очередь клетку (${newCell.position.column}, ${newCell.position.row}) с приоритетом ${newCell.priority}\n"
             queue.put(newCell)
             delay(10.toLong())
         }
