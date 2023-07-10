@@ -33,7 +33,7 @@ class Alg(var field: State) {
         queue.put(field.getCells()[y][x])
         while(!finSingle){
             val cur = queue.extractMin()
-            println("${cur.position.column} ${cur.position.row}")
+            //println("${cur.position.column} ${cur.position.row}")
             //field.setCellShortestAtPosition(cur.position)
             Log.d("tired", "${cur.position.row} ------- ${cur.position.column}")
             delay(10.toLong())

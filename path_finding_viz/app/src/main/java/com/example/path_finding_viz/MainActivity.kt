@@ -72,7 +72,7 @@ fun PathFindingApp(){
                 }
             }
 
-            PathFindingUi(state, currentGridState, onCellClicked, height, width, startPos, finPos, alg.value)
+            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value)
 
     LaunchedEffect(Unit) {
                 while (true) {
@@ -85,7 +85,7 @@ fun PathFindingApp(){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PathFindingUi(state: State, cells: MutableState<List<List<CellData>>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg) {
+fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
         scope.launch { state.animatedShortestPath() }
@@ -96,7 +96,7 @@ fun PathFindingUi(state: State, cells: MutableState<List<List<CellData>>>, onCli
         isVisualizeEnabled.value = true
     }
     val onCleared: () -> Unit = {
-        scope.launch { state.clear()}
+        state.clear()
         isVisualizeEnabled.value = true
     }
     val onOpenFile: () -> Unit = {
@@ -114,7 +114,7 @@ fun PathFindingUi(state: State, cells: MutableState<List<List<CellData>>>, onCli
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
         item {
-            PathFindingGrid(height.value, width.value, cells.value.toLinearGrid(), onClick) // рисует поле
+            PathFindingGrid(height.value, width.value, cells.toLinearGrid(), onClick) // рисует поле
         }
         Log.d("mypain", "alive")
 
@@ -155,35 +155,30 @@ fun PathFindingUi(state: State, cells: MutableState<List<List<CellData>>>, onCli
                     }, startPos.column.value,startPos.row.value, finPos.column.value,finPos.row.value,
 
                     { startPosX :Int->
-                        cells.value[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                        cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
                         startPos.column.value = startPosX
                         onCleared()
-                        cells.value[startPos.row.value][startPos.column.value].type = CellType.START
-                        //cells.value = state.drawCurrentGridState()
-
+                        cells[startPos.row.value][startPos.column.value].type = CellType.START
                     },
 
                     { startPosY :Int->
-                        cells.value[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                        cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
                         startPos.row.value = startPosY
                         onCleared()
-                        cells.value[startPos.row.value][startPos.column.value].type = CellType.START
-                        //cells.value = state.drawCurrentGridState()
+                        cells[startPos.row.value][startPos.column.value].type = CellType.START
                     },
 
                     { finishPosX :Int->
-                        cells.value[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                        cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
                         finPos.column.value = finishPosX
                         onCleared()
-                        cells.value[finPos.row.value][finPos.column.value].type = CellType.FINISH
-                        //cells.value = state.drawCurrentGridState()
+                        cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
                     },
                     { finishPosY :Int->
-                        cells.value[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                        cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
                         finPos.row.value = finishPosY
                         onCleared()
-                        cells.value[finPos.row.value][finPos.column.value].type = CellType.FINISH
-                        //cells.value = state.drawCurrentGridState()
+                        cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
                     }
                 )
 
