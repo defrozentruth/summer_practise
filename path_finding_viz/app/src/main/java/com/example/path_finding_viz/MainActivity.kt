@@ -156,27 +156,40 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
 
                     { startPosX :Int->
                         cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
-                        startPos.column.value = startPosX
+                        if (startPosX < width.value)
+                            startPos.column.value = startPosX
+                        else
+                            startPos.column.value = width.value-1
                         onCleared()
                         cells[startPos.row.value][startPos.column.value].type = CellType.START
                     },
 
                     { startPosY :Int->
                         cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
-                        startPos.row.value = startPosY
+                        if (startPosY <height.value)
+                            startPos.row.value = startPosY
+                        else
+                            startPos.row.value = height.value -1
                         onCleared()
                         cells[startPos.row.value][startPos.column.value].type = CellType.START
                     },
 
                     { finishPosX :Int->
                         cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
-                        finPos.column.value = finishPosX
+                        if (finishPosX < height.value)
+                            finPos.column.value = finishPosX
+                        else
+                            finPos.column.value = width.value -1
+
                         onCleared()
                         cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
                     },
                     { finishPosY :Int->
                         cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
-                        finPos.row.value = finishPosY
+                        if (finishPosY < height.value)
+                            finPos.row.value = finishPosY
+                        else
+                            finPos.row.value = height.value-1
                         onCleared()
                         cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
                     }
