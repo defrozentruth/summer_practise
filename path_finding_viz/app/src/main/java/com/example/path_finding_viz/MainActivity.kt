@@ -115,12 +115,14 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
     }
     val onStepPathfind: () -> Unit = {
         refreshCells(cells, state, true)
+        alg.refresh()
         scope.launch { state.animatedShortestPath_single(alg, cells, height) }
         isVisualizeEnabled.value = true
     }
     val onCleared: () -> Unit = {
         state.clear()
         refreshCells(cells, state, reverse = false)
+        alg.refresh()
         height.value -= 1
         height.value += 1
         isVisualizeEnabled.value = true
@@ -132,6 +134,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
         loader.readField(filename = "new_file.txt", state, alg)
         height.value = state.height
         width.value = state.width
+        alg.refresh(force = true)
 
         Log.d("shock2", "${state.height} ---- ${state.width}\n ${state.finishPosition.column.value} &&  ${state.finishPosition.row.value} ===============================")
     }
