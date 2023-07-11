@@ -18,6 +18,7 @@ class Alg(var field: State) {
     var log: String = ""
     var smallLog: String = ""
     var way: Int = 0
+    var processing = true
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
@@ -57,8 +58,6 @@ class Alg(var field: State) {
         Log.d("chego", "${res.size}")
         shortestPath.forEach{
             field.setCellShortestAtPosition(it.position)
-            Log.d("pochemu", "${shortestPath.size}")
-            Log.d("pochemu", "${it.position.row} ------- ${it.position.column}")
         }
         if(!finSingle){
             log += "Пути от старта до финиша не существует\n"
@@ -86,7 +85,8 @@ class Alg(var field: State) {
                 log += "Дошли до конечной клетки\n"
                 smallLog += "Дошли до конечной клетки\n"
                 finSingle = true
-                return Pair (res,log)
+                retrievePathSingle(res)
+                return Pair (res,smallLog)
             }
             addNextCell(x + 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
             addNextCell(x - 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
@@ -95,7 +95,9 @@ class Alg(var field: State) {
             endedOnX = x
             endedOnY = y
         }
-        val shortestPath = retrievePathWhole(res)
+        val shortestPath = retrievePathSingle(res)
+        Log.d("gde log", smallLog)
+
         shortestPath.forEach{
             field.setCellShortestAtPosition(it.position)
         }
@@ -165,11 +167,13 @@ class Alg(var field: State) {
             curr = res[curr]
         }
         path.reverse()
-        if(finSingle){
-            log += "Итоговый путь:\n"
+
+        if(finSingle && processing){
+            smallLog += "Итоговый путь:\n"
             for (elem in path)
-                log += "x:${elem.position.column} y:${elem.position.row}\n"
-            log += "Цена итогового пути: ${way}\n"
+                smallLog += "x:${elem.position.column} y:${elem.position.row}\n"
+            smallLog += "Цена итогового пути: ${way}\n"
+        processing = false
         }
         return path
     }

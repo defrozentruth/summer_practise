@@ -19,14 +19,10 @@ suspend fun startA_star(gridState: State): Pair<List<CellData>, String> {
 }
 
 suspend fun startA_star_single(gridState: State, alg: Alg): Pair<List<CellData>, String> {
-    Log.d("barbaris1", "--------${alg.queue.size()}")
     val value = alg.AStarSingle()
-    Log.d("barbaris2", "--------${alg.queue.size()}")
     val map = value.first
-    Log.d("barbaris3", "--------${alg.queue.size()}")
-
     val path = alg.retrievePathSingle(map)
-
+    Log.d("checknu", "${alg.smallLog} -------- ${value.second}")
     return Pair (path,value.second)
     //animatedDijkstra(gridState)
     //return getShortestPathOrder(gridState.getFinishCell())

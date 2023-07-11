@@ -2,12 +2,12 @@ package com.example.path_finding_viz
 
 import Alg
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import startA_star
 import startA_star_single
 
-class State (var height: Int, var width: Int, var startPosition: ExtraPosition, var finishPosition: ExtraPosition) {
+class State (var height: Int, var width: Int, var startPosition: ExtraPosition, var finishPosition: ExtraPosition, var log:  MutableState<String>) {
     private var gridState: MutableList<MutableList<CellData>> = mutableListOf()
-    var log = ""
     var isVisualizing = false
         private set
 
@@ -24,7 +24,7 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
         gridState = getInitGridState()
         Log.d("beda", "refresh_grid")
         isVisualizing = false
-        log = ""
+        log.value = ""
         addStartAndFinishGrids()
         Log.d("bedaExtra", "${this.startPosition.column.value} ------- ${this.startPosition.row.value}")
 
@@ -79,7 +79,7 @@ Log.d("beda", "start ${this.startPosition.column.value} ------- ${this.startPosi
         isVisualizing = true
         val value = startA_star(this)
         val shortestPath = value.first
-        log = value.second
+        log.value = value.second
 //        shortestPath.forEach {
 //            val p = it.position
 //            Log.d("detonator", shortestPath.size.toString())
@@ -90,8 +90,10 @@ Log.d("beda", "start ${this.startPosition.column.value} ------- ${this.startPosi
     suspend fun animatedShortestPath_single(alg : Alg) {
         isVisualizing = true
         val value = startA_star_single(this, alg)
-        log = value.second
+        log.value = value.second
+        Log.d("pochemu net", log.value)
     }
+
     @JvmName("getFinishPositionMethod")
     fun getFinishPosition() = finishPosition
 

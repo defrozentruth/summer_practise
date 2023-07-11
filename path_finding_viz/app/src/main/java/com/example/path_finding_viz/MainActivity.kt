@@ -50,6 +50,9 @@ class MainActivity : ComponentActivity() {
 fun PathFindingApp(){
     val height = remember { mutableStateOf(10) }
     val width = remember { mutableStateOf(15) }
+    val log = remember {
+        mutableStateOf("")
+    }
     val startPos = ExtraPosition(remember {
         mutableStateOf(0)
     }, remember {
@@ -61,7 +64,7 @@ fun PathFindingApp(){
         mutableStateOf(1)
     })
 
-            val state = remember(height.value, width.value, startPos, finPos) { State(height.value, width.value, startPos, finPos) }
+            val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }
             val currentGridState = remember(state) { mutableStateOf(state.drawCurrentGridState()) }
             val alg = remember {
                 mutableStateOf(Alg(state))
@@ -72,7 +75,7 @@ fun PathFindingApp(){
                 }
             }
 
-            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value)
+            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value, log)
 
     LaunchedEffect(Unit) {
                 while (true) {
@@ -85,7 +88,7 @@ fun PathFindingApp(){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg) {
+fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
         scope.launch { state.animatedShortestPath() }
@@ -116,10 +119,9 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
         item {
             PathFindingGrid(height.value, width.value, cells.toLinearGrid(), onClick) // рисует поле
         }
-        Log.d("mypain", "alive")
-
+        Log.d("mypainnew", "-${state.log}")
         item {
-            Text(text = state.log, color = Color.Black)
+            Text(text = log.value, color = Color.Black)
         }
         item{
             Row(modifier = Modifier.padding(8.dp)) {

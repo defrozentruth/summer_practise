@@ -20,7 +20,7 @@ class FieldReader() {
         val finishY = lines[2].split(" ")[1].toInt()
         val startPos = ExtraPosition(remember {mutableStateOf(startX)}, remember {mutableStateOf(startY)})
         val finPos = ExtraPosition(remember {mutableStateOf(finishX)}, remember {mutableStateOf(finishY)})
-        val field = State(sizeY, sizeX, startPos, finPos)
+        val field = State(sizeY, sizeX, startPos, finPos, remember { mutableStateOf("") })
         var i = 0
         var j = 0
         for(k in 3 until lines.size){
