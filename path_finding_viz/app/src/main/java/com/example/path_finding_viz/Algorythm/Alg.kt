@@ -12,7 +12,7 @@ class Alg(var field: State) {
     var endedOnX = field.finishPosition.column.value
     var endedOnY = field.finishPosition.row.value
     //val cells = field.getCells()
-    val queue = Heap()
+    var queue = Heap()
     val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
     var finSingle:Boolean = false
     var log: String = ""
@@ -49,6 +49,7 @@ class Alg(var field: State) {
                 finSingle = true
                 break
             }
+            queue = Heap()
             addNextCell(x+1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
             addNextCell(x-1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
             addNextCell(x, y+1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)
@@ -88,6 +89,7 @@ class Alg(var field: State) {
                 retrievePathSingle(res)
                 return Pair (res,smallLog)
             }
+            queue = Heap()
             addNextCell(x + 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
             addNextCell(x - 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
             addNextCell(x, y + 1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)

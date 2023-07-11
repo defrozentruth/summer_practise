@@ -79,9 +79,9 @@ Log.d("bedad", "start ${this.startPosition.column.value} ------- ${this.startPos
         }
     }
     fun getFinishCell() = getCellAtPosition(finishPosition)
-    suspend fun animatedShortestPath() {
+    suspend fun animatedShortestPath(alg: Alg) {
         isVisualizing = true
-        val value = startA_star(this)
+        val value = startA_star(this, alg)
         val shortestPath = value.first
         log.value = value.second
 //        shortestPath.forEach {

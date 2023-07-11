@@ -96,7 +96,7 @@ fun PathFindingApp(context :Context){
 fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>, context: Context) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
-        scope.launch { state.animatedShortestPath() }
+        scope.launch { state.animatedShortestPath(alg) }
         isVisualizeEnabled.value = false
     }
     val onStepPathfind: () -> Unit = {

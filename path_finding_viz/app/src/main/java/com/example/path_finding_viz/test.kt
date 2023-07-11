@@ -7,8 +7,8 @@ import com.example.path_finding_viz.Position
 import com.example.path_finding_viz.State
 import com.example.path_finding_viz.toLinearGrid
 
-suspend fun startA_star(gridState: State): Pair<List<CellData>, String> {
-    val alg = Alg(gridState)
+suspend fun startA_star(gridState: State, alg:Alg): Pair<List<CellData>, String> {
+    //val alg = Alg(gridState)
     val value = alg.AStarWhole()
     val map = value.first
     val path = alg.retrievePathWhole(map)
