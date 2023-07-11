@@ -54,8 +54,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PathFindingApp(context :Context){
-    val height = remember { mutableStateOf(10) }
-    val width = remember { mutableStateOf(15) }
+    val height = remember { mutableStateOf(6) }
+    val width = remember { mutableStateOf(6) }
     val log = remember {
         mutableStateOf("")
     }
@@ -65,9 +65,9 @@ fun PathFindingApp(context :Context){
         mutableStateOf(0)
     })
     val finPos = ExtraPosition(remember {
-        mutableStateOf(1)
+        mutableStateOf(5)
     }, remember {
-        mutableStateOf(1)
+        mutableStateOf(5)
     })
 
             val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }

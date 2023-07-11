@@ -31,7 +31,6 @@ class Alg(var field: State) {
         var y = nextY
         val finishX = field.finishPosition.column.value
         val finishY = field.finishPosition.row.value
-        val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[y][x] to null)
         field.setCellVisitedAtPosition(field.getCells()[y][x].position)
         queue.put(field.getCells()[y][x])
         while(queue.size() != 0){
@@ -50,7 +49,7 @@ class Alg(var field: State) {
                 finSingle = true
                 break
             }
-            queue = Heap()
+            //queue = Heap()
             addNextCell(x+1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
             addNextCell(x-1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
             addNextCell(x, y+1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)
@@ -91,7 +90,7 @@ class Alg(var field: State) {
                 retrievePathSingle(res)
                 return Pair (res,smallLog)
             }
-            queue = Heap()
+            //queue = Heap()
             addNextCell(x + 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
             addNextCell(x - 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
             addNextCell(x, y + 1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)
