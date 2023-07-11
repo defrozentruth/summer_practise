@@ -29,6 +29,10 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
         Log.d("bedaExtra", "${this.startPosition.column.value} ------- ${this.startPosition.row.value}")
 
     }
+    fun custom_init(){
+        gridState = getInitGridState()
+        addStartAndFinishGrids()
+    }
 
     fun drawCurrentGridState(): List<List<CellData>> {
         val updatedGrid = getInitGridState()
@@ -44,12 +48,12 @@ class State (var height: Int, var width: Int, var startPosition: ExtraPosition, 
     private fun getInitGridState() = getGridWithClearBackground(height, width)
 
     private fun addStartAndFinishGrids() {
-Log.d("beda", "start ${this.startPosition.column.value} ------- ${this.startPosition.row.value}")
+Log.d("bedad", "start ${this.startPosition.column.value} ------- ${this.startPosition.row.value}")
         gridState[startPosition.row.value][startPosition.column.value] =
             CellData(CellType.START, Position(startPosition.row.value, startPosition.column.value), distance = 0)
         gridState[finishPosition.row.value][finishPosition.column.value] =
             CellData(CellType.FINISH, Position(finishPosition.row.value, finishPosition.column.value))
-        Log.d("beda", "finish ${this.finishPosition.column.value} ------- ${this.finishPosition.row.value}")
+        Log.d("bedad", "finish ${this.finishPosition.column.value} ------- ${this.finishPosition.row.value}")
 
     }
     fun getCellAtPosition(p: Position) = gridState[p.row][p.column]

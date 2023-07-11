@@ -1,6 +1,9 @@
 package com.example.path_finding_viz
 
 import Alg
+import FieldReader
+import FieldWriter
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -27,10 +30,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.FileReader
 
 private val scope = CoroutineScope(Dispatchers.Default)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val context: Context = applicationContext
         super.onCreate(savedInstanceState)
         setContent {
             Path_finding_vizTheme {
@@ -39,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     //modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PathFindingApp()
+                    PathFindingApp(context)
                 }
             }
         }
@@ -47,7 +52,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PathFindingApp(){
+fun PathFindingApp(context :Context){
     val height = remember { mutableStateOf(10) }
     val width = remember { mutableStateOf(15) }
     val log = remember {
@@ -75,7 +80,7 @@ fun PathFindingApp(){
                 }
             }
 
-            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value, log)
+            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value, log, context)
 
     LaunchedEffect(Unit) {
                 while (true) {
@@ -88,7 +93,7 @@ fun PathFindingApp(){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>) {
+fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>, context: Context) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
         scope.launch { state.animatedShortestPath() }
@@ -102,11 +107,18 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
         state.clear()
         isVisualizeEnabled.value = true
     }
+
     val onOpenFile: () -> Unit = {
-        //state.openFile()
+        Log.d("shock1", "${state.height} ---- ${state.width}\n ${state.finishPosition.column.value} &&  ${state.finishPosition.row.value} ===============================")
+        val loader = FieldReader(context)
+        loader.readField(filename = "new_file.txt", state)
+        height.value = state.height
+        width.value = state.width
+        Log.d("shock2", "${state.height} ---- ${state.width}\n ${state.finishPosition.column.value} &&  ${state.finishPosition.row.value} ===============================")
     }
     val onSaveMap: () -> Unit = {
-        //state.saveMap()
+        val saver = FieldWriter(context)
+        saver.writeField(state, "new_file.txt")
     }
 
     LazyColumn(
