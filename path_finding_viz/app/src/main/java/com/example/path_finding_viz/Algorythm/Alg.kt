@@ -13,7 +13,7 @@ class Alg(var field: State) {
     var endedOnY = field.finishPosition.row.value
     //val cells = field.getCells()
     var queue = Heap()
-    val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
+    var res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
     var finSingle:Boolean = false
     var log: String = ""
     var smallLog: String = ""
@@ -31,7 +31,6 @@ class Alg(var field: State) {
         var y = nextY
         val finishX = field.finishPosition.column.value
         val finishY = field.finishPosition.row.value
-        val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[y][x] to null)
         field.setCellVisitedAtPosition(field.getCells()[y][x].position)
         queue.put(field.getCells()[y][x])
         while(queue.size() != 0){
@@ -182,5 +181,21 @@ class Alg(var field: State) {
         processing = false
         }
         return path
+    }
+
+    fun refresh(){
+        if(finSingle){
+            nextX = field.startPosition.column.value
+            nextY = field.startPosition.row.value
+            endedOnX = field.finishPosition.column.value
+            endedOnY = field.finishPosition.row.value
+            queue = Heap()
+            res = mutableMapOf(field.getCells()[nextY][nextX] to null)
+            finSingle = false
+            log = ""
+            smallLog = ""
+            way = 0
+            processing = true
+        }
     }
 }

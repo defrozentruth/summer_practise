@@ -104,6 +104,10 @@ Log.d("bedad", "start ${this.startPosition.column.value} ------- ${this.startPos
     private fun updateCellTypeAtPosition(p: Position, cellType: CellType) {
         gridState[p.row][p.column] = getCellAtPosition(p).copy(type = cellType)
     }
+
+    fun getCell(x:Int, y: Int): CellData {
+        return gridState[y][x]
+    }
 }
 
 fun getGridWithClearBackground(height: Int, width: Int): MutableList<MutableList<CellData>> {

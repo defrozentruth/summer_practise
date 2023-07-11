@@ -1,6 +1,7 @@
 package com.example.path_finding_viz
 
 import Alg
+import kotlinx.coroutines.coroutineScope
 import FieldReader
 import FieldWriter
 import android.content.Context
@@ -70,7 +71,7 @@ fun PathFindingApp(context :Context){
     })
 
             val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }
-            val currentGridState = remember(state) { mutableStateOf(state.drawCurrentGridState()) }
+            val currentGridState = remember(state, startPos, finPos) { mutableStateOf(state.drawCurrentGridState()) }
             val alg = remember {
                 mutableStateOf(Alg(state))
             }
@@ -97,15 +98,21 @@ fun PathFindingApp(context :Context){
 fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>, context: Context) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
+        refreshCells(cells, state, true)
+        alg.refresh()
         scope.launch { state.animatedShortestPath(alg) }
         isVisualizeEnabled.value = false
     }
     val onStepPathfind: () -> Unit = {
+        refreshCells(cells, state, true)
+        alg.refresh()
         scope.launch { state.animatedShortestPath_single(alg) }
         isVisualizeEnabled.value = true
     }
     val onCleared: () -> Unit = {
+        refreshCells(cells, state, false)
         state.clear()
+        alg.refresh()
         isVisualizeEnabled.value = true
     }
 
@@ -115,7 +122,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
         loader.readField(filename = "new_file.txt", state, alg)
         height.value = state.height
         width.value = state.width
-
+        //refreshCells(cells, state, true)
         Log.d("shock2", "${state.height} ---- ${state.width}\n ${state.finishPosition.column.value} &&  ${state.finishPosition.row.value} ===============================")
     }
     val onSaveMap: () -> Unit = {
