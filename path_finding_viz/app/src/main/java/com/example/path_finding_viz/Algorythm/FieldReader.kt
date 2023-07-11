@@ -60,6 +60,9 @@ class FieldReader(private val context: Context) {
             }
                 alg.nextX = startX
                 alg.nextY = startY
+                alg.endedOnX = finishX
+                alg.endedOnY = finishY
+                alg.finSingle = false
         }
     }}
 }

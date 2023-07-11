@@ -25,6 +25,7 @@ class Alg(var field: State) {
     }
 
     suspend fun AStarWhole():Pair<MutableMap<CellData, CellData?>, String>{
+        processing = true
         Log.d("ves", field.getCells()[0][0].rightJump.toString())
         var x = nextX
         var y = nextY
@@ -69,6 +70,7 @@ class Alg(var field: State) {
 
     suspend fun AStarSingle(): Pair<MutableMap<CellData, CellData?>, String>{
         if(!finSingle){
+            processing = true
             var x = nextX
             var y = nextY
             val finishX = field.finishPosition.column.value
