@@ -17,8 +17,10 @@ class Alg(var field: State) {
     var finSingle:Boolean = false
     var log: String = ""
     var smallLog: String = ""
+    var stepPath: String = ""
     var way: Int = 0
     var processing = true
+    var singlePath: String = ""
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
@@ -78,7 +80,7 @@ class Alg(var field: State) {
             queue.put(field.getCells()[y][x])
             val cur = queue.extractMin()
             way = cur.distance
-            //field.setCellShortestAtPosition(cur.position)
+            field.setCellShortestAtPosition(cur.position)
             x = cur.position.column
             y = cur.position.row
             log += "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
@@ -97,18 +99,20 @@ class Alg(var field: State) {
             addNextCell(x, y - 1, queue, res, field.getCells()[y][x], field.getCells()[y][x].uppJump)
             endedOnX = x
             endedOnY = y
+            singlePath += "x:${x} y:${y}\n"
         }
-        val shortestPath = retrievePathSingle(res)
-        Log.d("gde log", smallLog)
-
-        shortestPath.forEach{
-            field.setCellShortestAtPosition(it.position)
-        }
+//        val shortestPath = retrievePathSingle(res)
+//        Log.d("gde log", smallLog)
+//
+//        shortestPath.forEach{
+//            field.setCellShortestAtPosition(it.position)
+//        }
         if(!finSingle && queue.size() == 0){
             log += "Пути от старта до финиша не существует\n"
             smallLog += "Пути от старта до финиша не существует\n"
         }
-        //retrievePathSingle(res)
+        retrievePathSingle(res)
+
         return Pair(res, smallLog)
     }
 
@@ -173,10 +177,9 @@ class Alg(var field: State) {
         }
         path.reverse()
 
-        if(finSingle && processing){
+        if(finSingle){
             smallLog += "Итоговый путь:\n"
-            for (elem in path)
-                smallLog += "x:${elem.position.column} y:${elem.position.row}\n"
+            smallLog += singlePath
             smallLog += "Цена итогового пути: ${way}\n"
         processing = false
         }
