@@ -6,10 +6,11 @@ import com.example.path_finding_viz.CellType
 import com.example.path_finding_viz.ExtraPosition
 import java.io.File
 import com.example.path_finding_viz.State
+import Alg
 
 
 class FieldReader(private val context: Context) {
-    fun readField(filename: String, field: State){
+    fun readField(filename: String, field: State, alg: Alg){
         //val file = File(filename)
         context.openFileInput(filename).bufferedReader().useLines { data ->
         //val lines = lines.first()
@@ -57,6 +58,8 @@ class FieldReader(private val context: Context) {
                     j+=1
                 }
             }
+                alg.nextX = startX
+                alg.nextY = startY
         }
     }}
 }
