@@ -63,6 +63,8 @@ class FieldReader(private val context: Context) {
                 alg.endedOnX = finishX
                 alg.endedOnY = finishY
                 alg.finSingle = false
+                alg.log = ""
+                alg.smallLog = ""
         }
     }}
 }

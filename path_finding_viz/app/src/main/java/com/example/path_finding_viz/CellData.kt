@@ -48,7 +48,17 @@ data class CellData(
     override fun hashCode(): Int {
         return id
     }
-
+fun print () : String{
+    if (isShortestPath)
+        return "--- shortPath"
+    if (isVisited)
+        return "--- visited"
+    if (type == CellType.START)
+        return "--- start"
+    if (type == CellType.FINISH)
+        return "--- finish"
+    return "no"
+}
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.example.path_finding_viz.ui.theme.Path_finding_vizTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.FileReader
@@ -70,9 +71,9 @@ fun PathFindingApp(context :Context){
     })
 
             val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }
-            val currentGridState = remember(state) { mutableStateOf(state.drawCurrentGridState()) }
-            val alg = remember {
-                mutableStateOf(Alg(state))
+            val currentGridState = remember(state, startPos, finPos) { mutableStateOf(state.drawCurrentGridState()) }
+            val alg = remember (height.value, width.value, startPos, finPos, log){
+                (Alg(state))
             }
 
             val onCellClicked = { p: Position -> // пока не используется, перерисовка клеток при изменении перехоов в них не предусмотрена
@@ -81,7 +82,7 @@ fun PathFindingApp(context :Context){
                 }
             }
 
-            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg.value, log, context)
+            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg, log, context)
 
     LaunchedEffect(Unit) {
                 while (true) {
@@ -97,15 +98,31 @@ fun PathFindingApp(context :Context){
 fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>, context: Context) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
-        scope.launch { state.animatedShortestPath(alg) }
-        isVisualizeEnabled.value = false
+        Log.d("kletki", state.printCell(0,0))
+        Log.d("kletki", state.printCell(0,1))
+        refreshCells(cells, state, true)
+        scope.launch {coroutineScope{ state.animatedShortestPath(alg)}
+            refreshCells(cells, state, false)
+            height.value -=1
+            height.value +=1
+            isVisualizeEnabled.value = false
+        }
+
+        //state.animatedShortestPath(alg)
+
+        //cells[1][0].isShortestPath = state.getCell(0,1).isShortestPath
+
     }
     val onStepPathfind: () -> Unit = {
-        scope.launch { state.animatedShortestPath_single(alg) }
+        refreshCells(cells, state, true)
+        scope.launch { state.animatedShortestPath_single(alg, cells, height) }
         isVisualizeEnabled.value = true
     }
     val onCleared: () -> Unit = {
         state.clear()
+        refreshCells(cells, state, reverse = false)
+        height.value -= 1
+        height.value += 1
         isVisualizeEnabled.value = true
     }
 
@@ -172,12 +189,16 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
 
                     { startPosX :Int->
                         cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                        //state.updateCellTypeAtPosition(Position(startPos.row.value, startPos.column.value), CellType.BACKGROUND)
                         if (startPosX < width.value)
                             startPos.column.value = startPosX
                         else
                             startPos.column.value = width.value-1
                         onCleared()
+                        //state.updateCellTypeAtPosition(Position(startPos.row.value, startPos.column.value), CellType.START)
                         cells[startPos.row.value][startPos.column.value].type = CellType.START
+                        height.value -= 1
+                        height.value += 1
                     },
 
                     { startPosY :Int->
@@ -188,17 +209,21 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                             startPos.row.value = height.value -1
                         onCleared()
                         cells[startPos.row.value][startPos.column.value].type = CellType.START
+                        height.value -= 1
+                        height.value += 1
                     },
 
                     { finishPosX :Int->
                         cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
-                        if (finishPosX < height.value)
+                        if (finishPosX < width.value)
                             finPos.column.value = finishPosX
                         else
                             finPos.column.value = width.value -1
 
                         onCleared()
                         cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
+                        height.value -= 1
+                        height.value += 1
                     },
                     { finishPosY :Int->
                         cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
@@ -208,6 +233,8 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                             finPos.row.value = height.value-1
                         onCleared()
                         cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
+                        height.value -= 1
+                        height.value += 1
                     }
                 )
 

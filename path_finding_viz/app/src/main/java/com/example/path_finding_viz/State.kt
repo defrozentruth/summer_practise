@@ -57,7 +57,7 @@ Log.d("bedad", "start ${this.startPosition.column.value} ------- ${this.startPos
 
     }
     fun getCellAtPosition(p: Position) = gridState[p.row][p.column]
-    fun getCellAtPosition(p: ExtraPosition) = gridState[p.row.value][p.column.value]
+    private fun getCellAtPosition(p: ExtraPosition) = gridState[p.row.value][p.column.value]
     fun getCells() = gridState
     fun getCurrentGrid(): List<List<CellData>> = gridState
     fun setCellVisitedAtPosition(p: Position) {
@@ -78,6 +78,24 @@ Log.d("bedad", "start ${this.startPosition.column.value} ------- ${this.startPos
             updateCellTypeAtPosition(p, CellType.WALL)
         }
     }
+    fun printCell(x:Int, y: Int):String {
+        if (gridState[y][x].isShortestPath)
+            return "[$y][$x]--- shortPath"
+        if (gridState[y][x].isVisited)
+            return "[$y][$x]--- visited"
+        if (gridState[y][x].type == CellType.START)
+            return "[$y][$x]--- start"
+        if (gridState[y][x].type == CellType.FINISH)
+            return "[$y][$x]--- finish"
+        if (gridState[y][x].type == CellType.WALL)
+            return "[$y][$x]--- wall"
+    return "no"
+    }
+    fun getCell(x:Int, y: Int): CellData {
+       return gridState[y][x]
+    }
+
+
     fun getFinishCell() = getCellAtPosition(finishPosition)
     suspend fun animatedShortestPath(alg: Alg) {
         isVisualizing = true
@@ -91,17 +109,20 @@ Log.d("bedad", "start ${this.startPosition.column.value} ------- ${this.startPos
 //            //delay(10.toLong())
 //        }
     }
-    suspend fun animatedShortestPath_single(alg : Alg) {
+    suspend fun animatedShortestPath_single(alg : Alg, cells:List<List<CellData>>,height: MutableState<Int>) {
         isVisualizing = true
         val value = startA_star_single(this, alg)
+        refreshCells(cells, this, false, )
         log.value = value.second
+        height.value -= 1
+        height.value += 1
         Log.d("pochemu net", log.value)
     }
 
     @JvmName("getFinishPositionMethod")
     fun getFinishPosition() = finishPosition
 
-    private fun updateCellTypeAtPosition(p: Position, cellType: CellType) {
+    fun updateCellTypeAtPosition(p: Position, cellType: CellType) {
         gridState[p.row][p.column] = getCellAtPosition(p).copy(type = cellType)
     }
 }
