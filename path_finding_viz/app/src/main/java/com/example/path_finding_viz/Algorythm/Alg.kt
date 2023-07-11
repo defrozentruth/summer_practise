@@ -164,6 +164,8 @@ class Alg(var field: State) {
     fun retrievePathSingle(res:MutableMap<CellData, CellData?>): MutableList<CellData>{
         val path = emptyList<CellData>().toMutableList()
         var curr: CellData? = field.getCells()[endedOnY][endedOnX]
+        if(finSingle)
+            curr = field.getCells()[field.finishPosition.row.value][field.finishPosition.column.value]
         while(curr != null){
             path.add(curr)
             curr = res[curr]
