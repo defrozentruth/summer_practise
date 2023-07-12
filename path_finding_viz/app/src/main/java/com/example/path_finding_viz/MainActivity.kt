@@ -133,7 +133,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
     val onOpenFile: () -> Unit = {
         Log.d("shock1", "${state.height} ---- ${state.width}\n ${state.finishPosition.column.value} &&  ${state.finishPosition.row.value} ===============================")
         val loader = FieldReader(context)
-        loader.readField(filename = "new_file.txt", state, alg)
+        loader.readField(filename = "field.txt", state, alg)
         height.value = state.height
         width.value = state.width
         alg.refresh(force = true)
@@ -142,7 +142,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
     }
     val onSaveMap: () -> Unit = {
         val saver = FieldWriter(context)
-        saver.writeField(state, "new_file.txt")
+        saver.writeField(state, "field.txt")
     }
 
     LazyColumn(

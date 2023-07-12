@@ -53,7 +53,6 @@ class FieldReader(private val context: Context) {
                 if(j == sizeX-1){
                     j = 0
                     i+=1
-                    //ЗАЩИТА ОТ ПУСТЫХ СТРОК!!!!!!!!
                 }else{
                     j+=1
                 }

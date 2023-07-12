@@ -21,6 +21,7 @@ class Alg(var field: State) {
     var way: Int = 0
     var processing = true
     private var startSingle = true
+    var singlePath: String = ""
 
     fun clear(){
         nextX = field.startPosition.column.value
