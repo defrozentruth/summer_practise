@@ -185,18 +185,30 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                     height = height.value,
                     width = width.value,
                     onSubmit = { n1 :Int, n2:Int ->
-                        if (startPos.column.value > n2){
+                        val n1_checked = if (n1 != 0 ) n1 else 10
+                        val n2_checked = if (n2!= 0 ) n2 else 15
+                        if (startPos.column.value > n2_checked){
                             cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
-                            startPos.column.value = n2-1
+                            startPos.column.value = n2_checked-1
                             cells[startPos.row.value][startPos.column.value].type = CellType.START
                             }
-                        if (startPos.row.value > n1){
+                        if (startPos.row.value > n1_checked){
                             cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
-                            startPos.column.value = n2-1
+                            startPos.row.value = n1_checked-1
                             cells[startPos.row.value][startPos.column.value].type = CellType.START
                         }
-                        height.value = n1
-                        width.value = n2
+                        if (finPos.column.value > n2_checked){
+                            cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                            finPos.column.value = n2_checked-1
+                            cells[finPos.row.value][finPos.column.value].type = CellType.START
+                        }
+                        if (finPos.row.value > n1_checked){
+                            cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                            finPos.row.value = n1_checked-1
+                            cells[finPos.row.value][finPos.column.value].type = CellType.START
+                        }
+                        height.value = n1_checked
+                        width.value = n2_checked
                     }, startPos.column.value,startPos.row.value, finPos.column.value,finPos.row.value,
 
                     { startPosX :Int->
