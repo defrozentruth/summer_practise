@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -19,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,33 +47,52 @@ fun SetField(height: Int, width: Int, onSubmit: (Int, Int) -> Unit, startPositio
                     OutlinedTextField(
                         value = height.toString(),
                         onValueChange = { onSubmit(it.toIntOrNull() ?: 0, width) },
-                        label = { Text("Высота ") }
+                        label = { Text("Высота ") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
+
                     )
 
                     OutlinedTextField(
                         value = width.toString(),
                         onValueChange = { onSubmit(height, it.toIntOrNull() ?: 0) },
-                        label = { Text("Ширина") }
+                        label = { Text("Ширина") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
                     )
                     OutlinedTextField(
                         value = startPositionX.toString(),
                         onValueChange = { startSubmitX(it.toIntOrNull()?:0) },
-                        label = { Text("Старт X") }
+                        label = { Text("Старт X") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
                     )
                     OutlinedTextField(
                         value = startPositionY.toString(),
                         onValueChange = { startSubmitY(it.toIntOrNull()?:0) },
-                        label = { Text("Старт Y") }
+                        label = { Text("Старт Y") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
                     )
                     OutlinedTextField(
                         value = finishPositionX.toString(),
                         onValueChange = { finSubmitX(it.toIntOrNull()?:0) },
-                        label = { Text("Финиш X") }
+                        label = { Text("Финиш X") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
                     )
                     OutlinedTextField(
                         value = finishPositionY.toString(),
                         onValueChange = { finSubmitY(it.toIntOrNull()?:0) },
-                        label = { Text("Финиш Y") }
+                        label = { Text("Финиш Y") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
                     )
                 }
             },
