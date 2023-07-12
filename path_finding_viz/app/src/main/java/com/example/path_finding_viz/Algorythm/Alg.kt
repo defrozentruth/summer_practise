@@ -23,6 +23,7 @@ class Alg(var field: State) {
     private var startSingle = true
     var singlePath: String = ""
 
+
     fun clear(){
         nextX = field.startPosition.column.value
         nextY = field.startPosition.row.value
@@ -56,6 +57,7 @@ private fun refreshStart(){
         field.setCellVisitedAtPosition(field.getCells()[y][x].position)
         queue.put(field.getCells()[y][x])
         while(queue.size() != 0){
+
             val cur = queue.extractMin()
             if (cur.distance != -1)
                 way = cur.distance
@@ -109,6 +111,7 @@ private fun refreshStart(){
             x = cur.position.column
             y = cur.position.row
             log += "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
+
             smallLog = "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
             if (x == finishX && y == finishY) {
                 log += "Дошли до конечной клетки\n"
@@ -145,6 +148,7 @@ private fun refreshStart(){
         if( x < 0 || x >= field.width || y < 0 || y >= field.height) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
             smallLog += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
+
             return
         }
         if(field.getCells()[y][x].type == CellType.WALL) {
