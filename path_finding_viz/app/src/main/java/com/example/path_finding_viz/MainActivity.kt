@@ -72,7 +72,7 @@ fun PathFindingApp(context :Context){
 
             val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }
             val currentGridState = remember(state, startPos, finPos) { mutableStateOf(state.drawCurrentGridState()) }
-            val alg = remember (height.value, width.value, startPos, finPos, log){
+            val alg = remember (state,height.value, width.value, startPos, finPos, log){
                 (Alg(state))
             }
 
@@ -98,9 +98,10 @@ fun PathFindingApp(context :Context){
 fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>, context: Context) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
-        Log.d("kletki", state.printCell(0,0))
-        Log.d("kletki", state.printCell(0,1))
+        Log.d("cell", state.printCell(0,0))
+        Log.d("startStata", "${alg.field.startPosition.column.value},----- ${alg.field.startPosition.row.value}")
         refreshCells(cells, state, true)
+        Log.d("cell", state.printCell(0,0))
         scope.launch {coroutineScope{ state.animatedShortestPath(alg)}
             refreshCells(cells, state, false)
             height.value -=1
@@ -121,6 +122,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
     }
     val onCleared: () -> Unit = {
         state.clear()
+        alg.clear()
         refreshCells(cells, state, reverse = false)
         alg.refresh()
         height.value -= 1
@@ -186,8 +188,30 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                     height = height.value,
                     width = width.value,
                     onSubmit = { n1 :Int, n2:Int ->
-                        height.value = n1
-                        width.value = n2
+                        val n1_checked = if (n1 != 0 ) n1 else 10
+                        val n2_checked = if (n2!= 0 ) n2 else 15
+                        if (startPos.column.value > n2_checked){
+                            cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                            startPos.column.value = n2_checked-1
+                            cells[startPos.row.value][startPos.column.value].type = CellType.START
+                            }
+                        if (startPos.row.value > n1_checked){
+                            cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                            startPos.row.value = n1_checked-1
+                            cells[startPos.row.value][startPos.column.value].type = CellType.START
+                        }
+                        if (finPos.column.value > n2_checked){
+                            cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                            finPos.column.value = n2_checked-1
+                            cells[finPos.row.value][finPos.column.value].type = CellType.START
+                        }
+                        if (finPos.row.value > n1_checked){
+                            cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                            finPos.row.value = n1_checked-1
+                            cells[finPos.row.value][finPos.column.value].type = CellType.START
+                        }
+                        height.value = n1_checked
+                        width.value = n2_checked
                     }, startPos.column.value,startPos.row.value, finPos.column.value,finPos.row.value,
 
                     { startPosX :Int->

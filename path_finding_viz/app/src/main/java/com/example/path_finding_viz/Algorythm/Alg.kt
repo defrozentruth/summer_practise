@@ -20,15 +20,34 @@ class Alg(var field: State) {
     var stepPath: String = ""
     var way: Int = 0
     var processing = true
-    var singlePath: String = ""
+    private var startSingle = true
+
+    fun clear(){
+        nextX = field.startPosition.column.value
+        nextY = field.startPosition.row.value
+        endedOnX = field.finishPosition.column.value
+        endedOnY = field.finishPosition.row.value
+        queue = Heap()
+        res = mutableMapOf(field.getCells()[nextY][nextX] to null)
+        finSingle = false
+        log = ""
+        smallLog = ""
+        way = 0
+        processing = true
+        startSingle = true
+    }
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
     }
-
+private fun refreshStart(){
+    nextX = field.startPosition.column.value
+    nextY = field.startPosition.row.value
+}
      suspend fun AStarWhole():Pair<MutableMap<CellData, CellData?>, String>{
         processing = true
         Log.d("ves", field.getCells()[0][0].rightJump.toString())
+         refreshStart()
         var x = nextX
         var y = nextY
         val finishX = field.finishPosition.column.value
@@ -70,6 +89,11 @@ class Alg(var field: State) {
     }
 
     suspend fun AStarSingle(): Pair<MutableMap<CellData, CellData?>, String>{
+        if (startSingle)
+        {
+            refreshStart()
+            startSingle = false
+        }
         if(!finSingle){
             processing = true
             var x = nextX
