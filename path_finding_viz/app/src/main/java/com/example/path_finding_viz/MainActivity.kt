@@ -1,5 +1,9 @@
 package com.example.path_finding_viz
 
+import Alg
+import FieldReader
+import FieldWriter
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -22,11 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.path_finding_viz.ui.theme.Path_finding_vizTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.io.FileReader
 
-
+private val scope = CoroutineScope(Dispatchers.Default)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val context: Context = applicationContext
         super.onCreate(savedInstanceState)
         setContent {
             Path_finding_vizTheme {
@@ -35,7 +45,7 @@ class MainActivity : ComponentActivity() {
                     //modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PathFindingApp()
+                    PathFindingApp(context)
                 }
             }
         }
@@ -43,13 +53,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PathFindingApp(){
-    val height = remember { mutableStateOf(10) }
-    val width = remember { mutableStateOf(15) }
+fun PathFindingApp(context :Context){
+    val height = remember { mutableStateOf(6) }
+    val width = remember { mutableStateOf(6) }
+    val log = remember {
+        mutableStateOf("")
+    }
     val startPos = ExtraPosition(remember {
-        mutableStateOf(0)
+        mutableStateOf(5)
     }, remember {
-        mutableStateOf(0)
+        mutableStateOf(5)
     })
     val finPos = ExtraPosition(remember {
         mutableStateOf(0)
@@ -57,8 +70,11 @@ fun PathFindingApp(){
         mutableStateOf(0)
     })
 
-            val state = remember(height.value, width.value, startPos, finPos) { State(height.value, width.value, startPos, finPos) }
-            val currentGridState = remember(state) { mutableStateOf(state.drawCurrentGridState()) }
+            val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }
+            val currentGridState = remember(state, startPos, finPos) { mutableStateOf(state.drawCurrentGridState()) }
+            val alg = remember (state,height.value, width.value, startPos, finPos, log){
+                (Alg(state))
+            }
 
             val onCellClicked = { p: Position -> // пока не используется, перерисовка клеток при изменении перехоов в них не предусмотрена
                 if (state.isPositionNotAtStartOrFinish(p) && !state.isVisualizing) {
@@ -66,7 +82,7 @@ fun PathFindingApp(){
                 }
             }
 
-            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos)
+            PathFindingUi(state, currentGridState.value, onCellClicked, height, width, startPos, finPos, alg, log, context)
 
     LaunchedEffect(Unit) {
                 while (true) {
@@ -79,25 +95,54 @@ fun PathFindingApp(){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition) {
+fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>, context: Context) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
-        // state.animatedShortestPath()
-        isVisualizeEnabled.value = false
+        Log.d("cell", state.printCell(0,0))
+        Log.d("startStata", "${alg.field.startPosition.column.value},----- ${alg.field.startPosition.row.value}")
+        refreshCells(cells, state, true)
+        Log.d("cell", state.printCell(0,0))
+        scope.launch {coroutineScope{ state.animatedShortestPath(alg)}
+            refreshCells(cells, state, false)
+            height.value -=1
+            height.value +=1
+            isVisualizeEnabled.value = false
+        }
+
+        //state.animatedShortestPath(alg)
+
+        //cells[1][0].isShortestPath = state.getCell(0,1).isShortestPath
+
     }
     val onStepPathfind: () -> Unit = {
-        // state.animatedShortestPath()
-        isVisualizeEnabled.value = false
+        refreshCells(cells, state, true)
+        alg.refresh()
+        scope.launch { state.animatedShortestPath_single(alg, cells, height) }
+        isVisualizeEnabled.value = true
     }
     val onCleared: () -> Unit = {
         state.clear()
+        alg.clear()
+        refreshCells(cells, state, reverse = false)
+        alg.refresh()
+        height.value -= 1
+        height.value += 1
         isVisualizeEnabled.value = true
     }
+
     val onOpenFile: () -> Unit = {
-        //state.openFile()
+        Log.d("shock1", "${state.height} ---- ${state.width}\n ${state.finishPosition.column.value} &&  ${state.finishPosition.row.value} ===============================")
+        val loader = FieldReader(context)
+        loader.readField(filename = "field.txt", state, alg)
+        height.value = state.height
+        width.value = state.width
+        alg.refresh(force = true)
+
+        Log.d("shock2", "${state.height} ---- ${state.width}\n ${state.finishPosition.column.value} &&  ${state.finishPosition.row.value} ===============================")
     }
     val onSaveMap: () -> Unit = {
-        //state.saveMap()
+        val saver = FieldWriter(context)
+        saver.writeField(state, "field.txt")
     }
 
     LazyColumn(
@@ -110,10 +155,9 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
         item {
             PathFindingGrid(height.value, width.value, cells.toLinearGrid(), onClick) // рисует поле
         }
-        Log.d("mypain", "alive")
-
+        Log.d("mypainnew", "-${state.log}")
         item {
-            Text(text = "Здесь будет промежуточный вывод", color = Color.Black)
+            Text(text = log.value, color = Color.Black)
         }
         item{
             Row(modifier = Modifier.padding(8.dp)) {
@@ -144,23 +188,80 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                     height = height.value,
                     width = width.value,
                     onSubmit = { n1 :Int, n2:Int ->
-                        height.value = n1
-                        width.value = n2
+                        val n1_checked = if (n1 != 0 ) n1 else 10
+                        val n2_checked = if (n2!= 0 ) n2 else 15
+                        if (startPos.column.value > n2_checked){
+                            cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                            startPos.column.value = n2_checked-1
+                            cells[startPos.row.value][startPos.column.value].type = CellType.START
+                            }
+                        if (startPos.row.value > n1_checked){
+                            cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                            startPos.row.value = n1_checked-1
+                            cells[startPos.row.value][startPos.column.value].type = CellType.START
+                        }
+                        if (finPos.column.value > n2_checked){
+                            cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                            finPos.column.value = n2_checked-1
+                            cells[finPos.row.value][finPos.column.value].type = CellType.START
+                        }
+                        if (finPos.row.value > n1_checked){
+                            cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                            finPos.row.value = n1_checked-1
+                            cells[finPos.row.value][finPos.column.value].type = CellType.START
+                        }
+                        height.value = n1_checked
+                        width.value = n2_checked
                     }, startPos.column.value,startPos.row.value, finPos.column.value,finPos.row.value,
 
                     { startPosX :Int->
-                        startPos.column.value = startPosX
+                        cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                        //state.updateCellTypeAtPosition(Position(startPos.row.value, startPos.column.value), CellType.BACKGROUND)
+                        if (startPosX < width.value)
+                            startPos.column.value = startPosX
+                        else
+                            startPos.column.value = width.value-1
+                        onCleared()
+                        //state.updateCellTypeAtPosition(Position(startPos.row.value, startPos.column.value), CellType.START)
+                        cells[startPos.row.value][startPos.column.value].type = CellType.START
+                        height.value -= 1
+                        height.value += 1
                     },
 
                     { startPosY :Int->
-                        startPos.row.value = startPosY
+                        cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                        if (startPosY <height.value)
+                            startPos.row.value = startPosY
+                        else
+                            startPos.row.value = height.value -1
+                        onCleared()
+                        cells[startPos.row.value][startPos.column.value].type = CellType.START
+                        height.value -= 1
+                        height.value += 1
                     },
 
                     { finishPosX :Int->
-                        finPos.column.value = finishPosX
+                        cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                        if (finishPosX < width.value)
+                            finPos.column.value = finishPosX
+                        else
+                            finPos.column.value = width.value -1
+
+                        onCleared()
+                        cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
+                        height.value -= 1
+                        height.value += 1
                     },
                     { finishPosY :Int->
-                        finPos.row.value = finishPosY
+                        cells[finPos.row.value][finPos.column.value].type = CellType.BACKGROUND
+                        if (finishPosY < height.value)
+                            finPos.row.value = finishPosY
+                        else
+                            finPos.row.value = height.value-1
+                        onCleared()
+                        cells[finPos.row.value][finPos.column.value].type = CellType.FINISH
+                        height.value -= 1
+                        height.value += 1
                     }
                 )
 
