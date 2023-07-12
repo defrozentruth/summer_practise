@@ -185,6 +185,16 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
                     height = height.value,
                     width = width.value,
                     onSubmit = { n1 :Int, n2:Int ->
+                        if (startPos.column.value > n2){
+                            cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                            startPos.column.value = n2-1
+                            cells[startPos.row.value][startPos.column.value].type = CellType.START
+                            }
+                        if (startPos.row.value > n1){
+                            cells[startPos.row.value][startPos.column.value].type = CellType.BACKGROUND
+                            startPos.column.value = n2-1
+                            cells[startPos.row.value][startPos.column.value].type = CellType.START
+                        }
                         height.value = n1
                         width.value = n2
                     }, startPos.column.value,startPos.row.value, finPos.column.value,finPos.row.value,
