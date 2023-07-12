@@ -65,14 +65,14 @@ fun PathFindingApp(context :Context){
         mutableStateOf(0)
     })
     val finPos = ExtraPosition(remember {
-        mutableStateOf(1)
+        mutableStateOf(4)
     }, remember {
-        mutableStateOf(1)
+        mutableStateOf(4)
     })
 
             val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }
             val currentGridState = remember(state, startPos, finPos) { mutableStateOf(state.drawCurrentGridState()) }
-            val alg = remember (height.value, width.value, startPos, finPos, log){
+            val alg = remember (state,height.value, width.value, startPos, finPos, log){
                 (Alg(state))
             }
 
@@ -98,9 +98,10 @@ fun PathFindingApp(context :Context){
 fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position) -> Unit, height: MutableState<Int>, width: MutableState<Int>, startPos : ExtraPosition, finPos: ExtraPosition, alg:Alg, log: MutableState<String>, context: Context) {
     val isVisualizeEnabled = remember { mutableStateOf(true) }
     val onPathfind: () -> Unit = {
-        Log.d("kletki", state.printCell(0,0))
-        Log.d("kletki", state.printCell(0,1))
+        Log.d("cell", state.printCell(0,0))
+        Log.d("startStata", "${alg.field.startPosition.column.value},----- ${alg.field.startPosition.row.value}")
         refreshCells(cells, state, true)
+        Log.d("cell", state.printCell(0,0))
         scope.launch {coroutineScope{ state.animatedShortestPath(alg)}
             refreshCells(cells, state, false)
             height.value -=1

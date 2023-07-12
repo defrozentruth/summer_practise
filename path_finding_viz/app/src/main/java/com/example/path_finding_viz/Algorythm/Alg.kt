@@ -19,14 +19,19 @@ class Alg(var field: State) {
     var smallLog: String = ""
     var way: Int = 0
     var processing = true
+    private var startSingle = true
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
     }
-
+private fun refreshStart(){
+    nextX = field.startPosition.column.value
+    nextY = field.startPosition.row.value
+}
      suspend fun AStarWhole():Pair<MutableMap<CellData, CellData?>, String>{
         processing = true
         Log.d("ves", field.getCells()[0][0].rightJump.toString())
+         refreshStart()
         var x = nextX
         var y = nextY
         val finishX = field.finishPosition.column.value
@@ -69,6 +74,11 @@ class Alg(var field: State) {
     }
 
     suspend fun AStarSingle(): Pair<MutableMap<CellData, CellData?>, String>{
+        if (startSingle)
+        {
+            refreshStart()
+            startSingle = false
+        }
         if(!finSingle){
             processing = true
             var x = nextX
