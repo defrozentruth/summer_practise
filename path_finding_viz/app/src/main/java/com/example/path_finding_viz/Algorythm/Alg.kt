@@ -1,125 +1,234 @@
+import android.util.Log
+import com.example.path_finding_viz.CellData
+import com.example.path_finding_viz.CellType
+import com.example.path_finding_viz.Position
+import com.example.path_finding_viz.State
+import kotlinx.coroutines.delay
 import kotlin.math.abs
 
-class Alg(var field: Field) {
-    var nextX = field.startX
-    var nextY = field.startY
-    var endedOnX = field.startX
-    var endedOnY = field.startY
-    val queue = Heap()
-    val res: MutableMap<Cell, Cell?> = mutableMapOf(field.cells[nextY][nextX] to null)
+class Alg(var field: State) {
+    var nextX = field.startPosition.column.value
+    var nextY = field.startPosition.row.value
+    var endedOnX = field.finishPosition.column.value
+    var endedOnY = field.finishPosition.row.value
+    //val cells = field.getCells()
+    var queue = Heap()
+    var res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
     var finSingle:Boolean = false
     var log: String = ""
-    var shortLog: String = ""
+    var smallLog: String = ""
+    var stepPath: String = ""
+    var way: Int = 0
+    var processing = true
+    private var startSingle = true
+    var singlePath: String = ""
 
-    private fun heuristic(x:Int, y:Int):Int{
-        return  abs(x-field.finishX)+ abs(y-field.finishY)
+
+    fun clear(){
+        nextX = field.startPosition.column.value
+        nextY = field.startPosition.row.value
+        endedOnX = field.finishPosition.column.value
+        endedOnY = field.finishPosition.row.value
+        queue = Heap()
+        res = mutableMapOf(field.getCells()[nextY][nextX] to null)
+        finSingle = false
+        log = ""
+        smallLog = ""
+        way = 0
+        processing = true
+        startSingle = true
     }
 
-    fun AStarWhole(): MutableMap<Cell, Cell?>{
+    private fun heuristic(x:Int, y:Int):Int{
+        return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
+    }
+private fun refreshStart(){
+    nextX = field.startPosition.column.value
+    nextY = field.startPosition.row.value
+}
+     suspend fun AStarWhole():Pair<MutableMap<CellData, CellData?>, String>{
+        processing = true
+        Log.d("ves", field.getCells()[0][0].rightJump.toString())
+         refreshStart()
         var x = nextX
         var y = nextY
-        val finishX = field.finishX
-        val finishY = field.finishY
-        queue.put(field.cells[y][x])
-        while(!finSingle){
+        val finishX = field.finishPosition.column.value
+        val finishY = field.finishPosition.row.value
+        field.setCellVisitedAtPosition(field.getCells()[y][x].position)
+        queue.put(field.getCells()[y][x])
+        while(queue.size() != 0){
+
             val cur = queue.extractMin()
-            println("${cur.posX} ${cur.posY}")
-            cur.setVisit()
-            x = cur.posX
-            y = cur.posY
+            if (cur.distance != -1)
+                way = cur.distance
+            //println("${cur.position.column} ${cur.position.row}")
+            //field.setCellShortestAtPosition(cur.position)
+            Log.d("tired", "${cur.position.row} ------- ${cur.position.column}")
+            delay(10.toLong())
+            x = cur.position.column
+            y = cur.position.row
             log += "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
             if(x == finishX && y == finishY) {
                 log += "Дошли до конечной клетки\n"
                 finSingle = true
                 break
             }
-            addNextCell(x+1, y, queue, res, field.cells[y][x], field.cells[y][x].right)
-            addNextCell(x-1, y, queue, res, field.cells[y][x], field.cells[y][x].left)
-            addNextCell(x, y+1, queue, res, field.cells[y][x], field.cells[y][x].down)
-            addNextCell(x, y-1, queue, res, field.cells[y][x], field.cells[y][x].up)
+            //queue = Heap()
+            addNextCell(x+1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
+            addNextCell(x-1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
+            addNextCell(x, y+1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)
+            addNextCell(x, y-1, queue, res, field.getCells()[y][x], field.getCells()[y][x].uppJump)
         }
-        return res
+        val shortestPath = retrievePathWhole(res)
+        Log.d("chego", "${res.size}")
+        shortestPath.forEach{
+            field.setCellShortestAtPosition(it.position)
+        }
+        if(!finSingle){
+            log += "Пути от старта до финиша не существует\n"
+        }
+        //retrievePathWhole(res)
+        return Pair (res,log)
     }
 
-    fun AStarSingle(): MutableMap<Cell, Cell?>{
+    suspend fun AStarSingle(): Pair<MutableMap<CellData, CellData?>, String>{
+        if (startSingle)
+        {
+            refreshStart()
+            startSingle = false
+        }
         if(!finSingle){
+            processing = true
             var x = nextX
             var y = nextY
-            val finishX = field.finishX
-            val finishY = field.finishY
-            queue.put(field.cells[y][x])
+            val finishX = field.finishPosition.column.value
+            val finishY = field.finishPosition.row.value
+            field.setCellVisitedAtPosition(field.getCells()[y][x].position)
+            queue.put(field.getCells()[y][x])
             val cur = queue.extractMin()
-            cur.setVisit()
-            x = cur.posX
-            y = cur.posY
+            way = cur.distance
+            field.setCellShortestAtPosition(cur.position)
+            x = cur.position.column
+            y = cur.position.row
             log += "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
-            shortLog = "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
+
+            smallLog = "Рассматриваем клетку ($x, $y) с приоритетом ${cur.priority}\n"
             if (x == finishX && y == finishY) {
                 log += "Дошли до конечной клетки\n"
-                shortLog += "Дошли до конечной клетки\n"
+                smallLog += "Дошли до конечной клетки\n"
                 finSingle = true
-                return res
+                retrievePathSingle(res)
+                return Pair (res,smallLog)
             }
-            addNextCell(x + 1, y, queue, res, field.cells[y][x], field.cells[y][x].right)
-            addNextCell(x - 1, y, queue, res, field.cells[y][x], field.cells[y][x].left)
-            addNextCell(x, y + 1, queue, res, field.cells[y][x], field.cells[y][x].down)
-            addNextCell(x, y - 1, queue, res, field.cells[y][x], field.cells[y][x].up)
+            //queue = Heap()
+            addNextCell(x + 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].rightJump)
+            addNextCell(x - 1, y, queue, res, field.getCells()[y][x], field.getCells()[y][x].leftJump)
+            addNextCell(x, y + 1, queue, res, field.getCells()[y][x], field.getCells()[y][x].downJump)
+            addNextCell(x, y - 1, queue, res, field.getCells()[y][x], field.getCells()[y][x].uppJump)
             endedOnX = x
             endedOnY = y
+            singlePath += "x:${x} y:${y}\n"
         }
-        return res
+//        val shortestPath = retrievePathSingle(res)
+//        Log.d("gde log", smallLog)
+//
+//        shortestPath.forEach{
+//            field.setCellShortestAtPosition(it.position)
+//        }
+        if(!finSingle && queue.size() == 0){
+            log += "Пути от старта до финиша не существует\n"
+            smallLog += "Пути от старта до финиша не существует\n"
+        }
+        retrievePathSingle(res)
+
+        return Pair(res, smallLog)
     }
 
-    private fun addNextCell(x: Int, y: Int, queue:Heap, res: MutableMap<Cell, Cell?>, previousCell:Cell, roadToNew:Int){
-        if( x < 0 || x >= field.sizeX || y < 0 || y >= field.sizeY) {
+    private suspend fun addNextCell(x: Int, y: Int, queue:Heap, res: MutableMap<CellData, CellData?>, previousCell:CellData, roadToNew:Int){
+        if( x < 0 || x >= field.width || y < 0 || y >= field.height) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
-            shortLog += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
+            smallLog += "Не можем добавить в очередь клетку ($x, $y), т.к. ее не существует\n"
+
             return
         }
-        if(!field.cells[y][x].accessibility) {
+        if(field.getCells()[y][x].type == CellType.WALL) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к.она непроходима\n"
-            shortLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она непроходима\n"
+            smallLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она непроходима\n"
             return
         }
-        if(field.cells[y][x].visited) {
+        if(field.getCells()[y][x].isVisited) {
             log += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
-            shortLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
+            smallLog += "Не можем добавить в очередь клетку ($x, $y), т.к.она уже рассмотрена\n"
             return
         }
-        val newCell = field.cells[y][x]
+        field.setCellVisitedAtPosition(Position(y,x))
+        val newCell = field.getCells()[y][x]
+
         val newDistance = previousCell.distance+roadToNew
         if(newCell.distance == -1 || newCell.distance > newDistance){
             res[newCell] = previousCell
             newCell.distance = newDistance
-            newCell.priority = heuristic(x, y)
-            log += "Добавляем в очередь клетку (${newCell.posX}, ${newCell.posY}) с приоритетом ${newCell.priority}\n"
-            shortLog += "Добавляем в очередь клетку (${newCell.posX}, ${newCell.posY}) с приоритетом ${newCell.priority}\n"
+            newCell.priority = heuristic(x, y) + newCell.distance
+            log += "Добавляем в очередь клетку (${newCell.position.column}, ${newCell.position.row}) с приоритетом ${newCell.priority}\n"
+            smallLog += "Добавляем в очередь клетку (${newCell.position.column}, ${newCell.position.row}) с приоритетом ${newCell.priority}\n"
             queue.put(newCell)
+            delay(10.toLong())
         }
         val cur = queue.extractMin()
-        nextX = cur.posX
-        nextY = cur.posY
+        nextX = cur.position.column
+        nextY = cur.position.row
         queue.put(cur)
     }
 
-    fun retrievePathWhole(res:MutableMap<Cell, Cell?>): MutableList<Cell>{
-        val path = emptyList<Cell>().toMutableList()
-        var curr: Cell? = field.cells[field.finishY][field.finishX]
+    fun retrievePathWhole(res:MutableMap<CellData, CellData?>): MutableList<CellData>{
+        val path = emptyList<CellData>().toMutableList()
+        var curr: CellData? = field.getCells()[field.finishPosition.row.value][field.finishPosition.column.value]
+        while(curr != null){
+            path.add(curr)
+            curr = res[curr]
+
+        }
+        path.reverse()
+        log += "Итоговый путь:\n"
+        for (elem in path)
+            log += "x:${elem.position.column} y:${elem.position.row}\n"
+        log += "Цена итогового пути: ${way}\n"
+        return path
+    }
+    fun retrievePathSingle(res:MutableMap<CellData, CellData?>): MutableList<CellData>{
+        val path = emptyList<CellData>().toMutableList()
+        var curr: CellData? = field.getCells()[endedOnY][endedOnX]
+        if(finSingle)
+            curr = field.getCells()[field.finishPosition.row.value][field.finishPosition.column.value]
         while(curr != null){
             path.add(curr)
             curr = res[curr]
         }
         path.reverse()
-        return path
-    }
-    fun retrievePathSingle(res:MutableMap<Cell, Cell?>): MutableList<Cell>{
-        val path = emptyList<Cell>().toMutableList()
-        var curr: Cell? = field.cells[endedOnY][endedOnX]
-        while(curr != null){
-            path.add(curr)
-            curr = res[curr]
+
+        if(finSingle){
+            smallLog += "Итоговый путь:\n"
+            smallLog += singlePath
+            smallLog += "Цена итогового пути: ${way}\n"
+        processing = false
         }
-        path.reverse()
         return path
     }
+
+    fun refresh(force:Boolean = false){
+        if(finSingle || force){
+            nextX = field.startPosition.column.value
+            nextY = field.startPosition.row.value
+            endedOnX = field.finishPosition.column.value
+            endedOnY = field.finishPosition.row.value
+            queue = Heap()
+            res = mutableMapOf(field.getCells()[nextY][nextX] to null)
+            finSingle = false
+            log = ""
+            smallLog = ""
+            way = 0
+            processing = true
+        }
+    }
+
 }

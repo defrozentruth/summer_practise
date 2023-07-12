@@ -1,5 +1,7 @@
+import com.example.path_finding_viz.CellData
+
 class Heap(){
-    var queue = emptyList<Cell>().toMutableList()
+    var queue = emptyList<CellData>().toMutableList()
 
     fun siftUp(index: Int){
         if(index < 0 || index >= this.queue.size){
@@ -41,7 +43,7 @@ class Heap(){
         }
     }
 
-    fun extractMin(): Cell{
+    fun extractMin(): CellData{
         val min_element = this.queue[0]
         this.queue[0] = this.queue[this.queue.size-1]
         this.queue.removeAt(this.queue.size - 1)
@@ -49,7 +51,7 @@ class Heap(){
         return min_element
     }
 
-    fun put(element: Cell){
+    fun put(element: CellData){
         this.queue.add(element)
         this.siftUp(this.size() - 1)
     }

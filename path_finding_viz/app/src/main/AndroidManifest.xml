@@ -16,7 +16,7 @@
             android:name=".MainActivity"
             android:screenOrientation="landscape"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="A* - Костыль и велосипед"
             android:theme="@style/Theme.Path_finding_viz">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
