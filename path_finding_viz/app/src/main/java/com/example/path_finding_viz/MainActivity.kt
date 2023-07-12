@@ -121,6 +121,7 @@ fun PathFindingUi(state: State, cells: List<List<CellData>>, onClick: (Position)
     }
     val onCleared: () -> Unit = {
         state.clear()
+        alg.clear()
         refreshCells(cells, state, reverse = false)
         height.value -= 1
         height.value += 1

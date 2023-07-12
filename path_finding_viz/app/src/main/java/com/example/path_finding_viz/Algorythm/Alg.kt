@@ -13,13 +13,28 @@ class Alg(var field: State) {
     var endedOnY = field.finishPosition.row.value
     //val cells = field.getCells()
     var queue = Heap()
-    val res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
+    var res: MutableMap<CellData, CellData?> = mutableMapOf(field.getCells()[nextY][nextX] to null)
     var finSingle:Boolean = false
     var log: String = ""
     var smallLog: String = ""
     var way: Int = 0
     var processing = true
     private var startSingle = true
+
+    fun clear(){
+        nextX = field.startPosition.column.value
+        nextY = field.startPosition.row.value
+        endedOnX = field.finishPosition.column.value
+        endedOnY = field.finishPosition.row.value
+        queue = Heap()
+        res = mutableMapOf(field.getCells()[nextY][nextX] to null)
+        finSingle = false
+        log = ""
+        smallLog = ""
+        way = 0
+        processing = true
+        startSingle = true
+    }
 
     private fun heuristic(x:Int, y:Int):Int{
         return  abs(x-field.finishPosition.column.value)+ abs(y-field.finishPosition.row.value)
