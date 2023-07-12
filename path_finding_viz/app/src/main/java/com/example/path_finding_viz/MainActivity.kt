@@ -60,14 +60,14 @@ fun PathFindingApp(context :Context){
         mutableStateOf("")
     }
     val startPos = ExtraPosition(remember {
-        mutableStateOf(0)
+        mutableStateOf(5)
     }, remember {
-        mutableStateOf(0)
+        mutableStateOf(5)
     })
     val finPos = ExtraPosition(remember {
-        mutableStateOf(5)
+        mutableStateOf(0)
     }, remember {
-        mutableStateOf(5)
+        mutableStateOf(0)
     })
 
             val state = remember(height.value, width.value, startPos, finPos, log) { State(height.value, width.value, startPos, finPos, log) }

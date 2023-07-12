@@ -34,21 +34,21 @@ class FieldReader(private val context: Context) {
             var j = 0
             for(k in 3 until lines.size){
             if(k % 2 != 0){
-                field.getCells()[i][j].uppJump = lines[k].split(" ")[0].toInt()
-                field.getCells()[i][j].rightJump = lines[k].split(" ")[1].toInt()
-                field.getCells()[i][j].downJump = lines[k].split(" ")[2].toInt()
-                field.getCells()[i][j].leftJump = lines[k].split(" ")[3].toInt()
-                field.getCells()[i][j].isVisited = false
+                field.gridState[i][j].uppJump = lines[k].split(" ")[0].toInt()
+                field.gridState[i][j].rightJump = lines[k].split(" ")[1].toInt()
+                field.gridState[i][j].downJump = lines[k].split(" ")[2].toInt()
+                field.gridState[i][j].leftJump = lines[k].split(" ")[3].toInt()
+                field.gridState[i][j].isVisited = false
                 if(i == startY && j == startX)
-                    field.getCells()[i][j].type = CellType.START
+                    field.gridState[i][j].type = CellType.START
                 else
                     if (i == finishY && j == finishX)
-                        field.getCells()[i][j].type = CellType.FINISH
+                        field.gridState[i][j].type = CellType.FINISH
                     else
-                        field.getCells()[i][j].type = CellType.BACKGROUND
+                        field.gridState[i][j].type = CellType.BACKGROUND
             }else{
                 if(lines[k] == "Unpassable") {
-                    field.getCells()[i][j].type = CellType.WALL
+                    field.gridState[i][j].type = CellType.WALL
                 }
                 if(j == sizeX-1){
                     j = 0

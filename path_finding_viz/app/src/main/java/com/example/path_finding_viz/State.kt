@@ -7,7 +7,7 @@ import startA_star
 import startA_star_single
 
 class State (var height: Int, var width: Int, var startPosition: ExtraPosition, var finishPosition: ExtraPosition, var log:  MutableState<String>) {
-    private var gridState: MutableList<MutableList<CellData>> = mutableListOf()
+    var gridState: MutableList<MutableList<CellData>> = mutableListOf()
     var isVisualizing = false
         private set
 
